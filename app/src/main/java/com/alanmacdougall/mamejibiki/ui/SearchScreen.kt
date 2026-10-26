@@ -166,6 +166,7 @@ private fun EmptyHelp() {
         Text("Search by kanji, kana or English.", color = muted)
         Text("? matches any one character: 日?, ??語", color = muted)
         Text("Words starting with your input are included, and small slips in long vowels or voicing (ゆき → 勇気) are tolerated.", color = muted)
+        Text("Conjugated words find their dictionary form: 食べられない → 食べる.", color = muted)
     }
 }
 
@@ -188,6 +189,9 @@ private fun ResultRow(result: SearchResult, onClick: () -> Unit) {
             )
             if (result.entry.kanji.any { it.common } || result.entry.kana.any { it.common }) Badge("common")
             if (result.entry.sense.any { "vs" in it.partOfSpeech }) Badge("する")
+        }
+        result.inflection?.let {
+            Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
         }
         Text(
             glossLine(result),

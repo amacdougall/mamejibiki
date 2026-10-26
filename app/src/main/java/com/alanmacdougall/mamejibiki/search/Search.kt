@@ -1,11 +1,13 @@
 package com.alanmacdougall.mamejibiki.search
 
 import android.database.sqlite.SQLiteDatabase
+import com.alanmacdougall.mamejibiki.conjugation.Deinflector
+import com.alanmacdougall.mamejibiki.conjugation.Inflection
 import com.alanmacdougall.mamejibiki.data.Entry
 import com.alanmacdougall.mamejibiki.data.FormRef
 import com.alanmacdougall.mamejibiki.pitch.Accent
 
-enum class Tier { EXACT, FUZZY_EXACT, PREFIX, FUZZY, ENGLISH_EXACT, ENGLISH_PREFIX, ENGLISH_WORD }
+enum class Tier { EXACT, FUZZY_EXACT, DEINFLECTED, PREFIX, FUZZY, ENGLISH_EXACT, ENGLISH_PREFIX, ENGLISH_WORD }
 
 /**
  * Which written form (formKind 0, index into Entry.kanji) or reading
@@ -17,13 +19,17 @@ data class FormMatch(val formKind: Int, val formIndex: Int, val highlightLength:
     val form: FormRef get() = FormRef(formKind, formIndex)
 }
 
-/** [pitch] holds each reading's accent patterns, indexed like Entry.kana. */
+/**
+ * [pitch] holds each reading's accent patterns, indexed like Entry.kana.
+ * [inflection] describes what a deinflected match undid ("past, negative").
+ */
 data class SearchResult(
     val id: Long,
     val entry: Entry,
     val tier: Tier,
     val match: FormMatch?,
     val pitch: List<List<Accent>> = emptyList(),
+    val inflection: String? = null,
 )
 
 /** The search tiers from the UI spec §2, prototyped in pipeline/query.rb. */
@@ -38,16 +44,71 @@ class Search(private val db: SQLiteDatabase) {
     private fun japanese(query: String): List<SearchResult> {
         val key = globLiteral(Kana.searchKey(query), keepWildcard = true)
         val fuzzy = globLiteral(Kana.fuzzyKey(query), keepWildcard = true)
-        // A whole-word fuzzy match (ゆき for ゆうき) ranks with exact matches, above prefix matches.
-        val tiers = listOf(
+        // A whole-word fuzzy match (ゆき for ゆうき) ranks with exact matches,
+        // then deinflected matches, then prefix matches.
+        val whole = listOf(
             TierQuery(Tier.EXACT, "k.kind = 0 AND k.key GLOB ?", key),
             TierQuery(Tier.FUZZY_EXACT, "k.kind = 1 AND k.key GLOB ?", fuzzy),
+        )
+        val prefix = listOf(
             TierQuery(Tier.PREFIX, "k.kind = 0 AND k.key GLOB ?", "$key*"),
             TierQuery(Tier.FUZZY, "k.kind = 1 AND k.key GLOB ?", "$fuzzy*"),
         )
-        return collect(tiers, "jp_keys", "k.form_kind, k.form_index", firstOrder = "") { tier, cursor ->
-            val highlight = if (tier == Tier.PREFIX) query.length else null
-            FormMatch(cursor.getInt(4), cursor.getInt(5), highlight)
+        val seen = HashSet<Long>()
+        val results = ArrayList<SearchResult>()
+        val match = { tier: Tier, cursor: android.database.Cursor ->
+            FormMatch(cursor.getInt(4), cursor.getInt(5), if (tier == Tier.PREFIX) query.length else null)
+        }
+        collect(whole, "jp_keys", "k.form_kind, k.form_index", firstOrder = "", seen, results, match)
+        if ('?' !in query && '？' !in query) deinflected(Kana.searchKey(query), seen, results)
+        collect(prefix, "jp_keys", "k.form_kind, k.form_index", firstOrder = "", seen, results, match)
+        return results
+    }
+
+    /**
+     * The deinflected tier: each candidate dictionary form is looked up as an
+     * exact key, and kept only if the entry has the candidate's POS class. A
+     * する verb candidate (勉強する) also finds the `vs` noun (勉強).
+     */
+    private fun deinflected(key: String, seen: HashSet<Long>, results: ArrayList<SearchResult>) {
+        // Each lookup key's (required POS, inflections) readings.
+        val wanted = HashMap<String, MutableList<Pair<String, List<Inflection>>>>()
+        for (d in Deinflector.deinflect(key)) {
+            if (d.text == key) continue
+            wanted.getOrPut(d.text) { ArrayList() } += d.wordClass to d.inflections
+            val noun = d.text.removeSuffix("する")
+            if (d.wordClass == "vs-i" && noun != d.text && noun.isNotEmpty()) {
+                wanted.getOrPut(noun) { ArrayList() } += "vs" to d.inflections
+            }
+        }
+        if (wanted.isEmpty()) return
+
+        class Hit(val id: Long, val data: String, val common: Int, val rank: Int?, val match: FormMatch, val chains: MutableList<List<Inflection>>)
+        val hits = LinkedHashMap<Long, Hit>()
+        for (keys in wanted.keys.chunked(500)) {
+            val sql = """
+                SELECT e.id, e.data, e.common, e.rank, e.pos, k.key, k.form_kind, k.form_index
+                FROM jp_keys k JOIN entries e ON e.id = k.entry_id
+                WHERE k.kind = 0 AND k.key IN (${keys.joinToString(",") { "?" }})
+            """.trimIndent()
+            db.rawQuery(sql, keys.toTypedArray()).use { c ->
+                while (c.moveToNext()) {
+                    val id = c.getLong(0)
+                    if (id in seen) continue
+                    val pos = c.getString(4).split(' ').toSet()
+                    val chains = wanted.getValue(c.getString(5)).filter { it.first in pos }.map { it.second }
+                    if (chains.isEmpty()) continue
+                    hits[id]?.let { it.chains += chains; continue }
+                    val rank = if (c.isNull(3)) null else c.getInt(3)
+                    hits[id] = Hit(id, c.getString(1), c.getInt(2), rank, FormMatch(c.getInt(6), c.getInt(7), null), chains.toMutableList())
+                }
+            }
+        }
+        val ordered = hits.values.sortedWith(compareByDescending<Hit> { it.common }.thenBy { it.rank ?: Int.MAX_VALUE })
+        for (hit in ordered) {
+            if (results.size >= MAX_RESULTS) break
+            seen += hit.id
+            results += SearchResult(hit.id, Entry.decode(hit.data), Tier.DEINFLECTED, hit.match, inflection = Deinflector.label(hit.chains))
         }
     }
 
@@ -60,7 +121,9 @@ class Search(private val db: SQLiteDatabase) {
             if (' ' !in phrase) add(TierQuery(Tier.ENGLISH_WORD, "k.kind = 1 AND k.key = ?", phrase))
         }
         // A match in an entry's first sense outranks a match in a later one.
-        return collect(tiers, "en_keys", "k.sense_index, 0", firstOrder = "k.sense_index > 0, ") { _, _ -> null }
+        val results = ArrayList<SearchResult>()
+        collect(tiers, "en_keys", "k.sense_index, 0", firstOrder = "k.sense_index > 0, ", HashSet(), results) { _, _ -> null }
+        return results
     }
 
     private data class TierQuery(val tier: Tier, val where: String, val arg: String)
@@ -70,10 +133,10 @@ class Search(private val db: SQLiteDatabase) {
         table: String,
         extraColumns: String,
         firstOrder: String,
+        seen: HashSet<Long>,
+        results: ArrayList<SearchResult>,
         match: (Tier, android.database.Cursor) -> FormMatch?,
-    ): List<SearchResult> {
-        val seen = HashSet<Long>()
-        val results = ArrayList<SearchResult>()
+    ) {
         for (t in tiers) {
             if (results.size >= MAX_RESULTS) break
             val sql = """
@@ -91,7 +154,6 @@ class Search(private val db: SQLiteDatabase) {
                 }
             }
         }
-        return results
     }
 
     companion object {

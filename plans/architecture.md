@@ -13,8 +13,9 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `MainActivity.kt` | Creates `AppModel`, then sets the Compose content to `App(model)`. |
 | `ui/App.kt` | `AppModel` (the back stack and the `Dictionary`), the `Screen` interface, and `App()`, which shows the top of the stack and handles system back. |
 | `ui/SearchScreen.kt` | `SearchState` and the search screen: field, live search, result rows. |
-| `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Kanji and Forms are placeholders. |
+| `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Kanji is a placeholder. |
 | `ui/WordTab.kt` | The Word tab (UI spec §4). |
+| `ui/FormsTab.kt` | The Forms tab (UI spec §6), drawing `EntryState.formsTables`. |
 | `ui/PitchText.kt` | `PitchText`, a `Text` with pitch accent overlines drawn over chosen character ranges. |
 | `ui/Theme.kt`, `ui/Icons.kt` | Material 3 theme with Japanese-locale typography; icons missing from material-icons-core. |
 | `data/DictionaryDatabase.kt` | Copies the SQLite asset into app storage when its version stamp changes, and opens it read-only. |
@@ -23,6 +24,8 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `search/Search.kt` | The ranked search tiers (`Tier`) over `jp_keys` and `en_keys`. |
 | `search/Kana.kt`, `search/English.kt` | Query normalization, identical to `pipeline/lib/kana.rb` and `english.rb`. |
 | `pitch/Pitch.kt` | Mora splitting and Wadoku H/L parsing into high runs. |
+| `conjugation/Conjugation.kt` | The conjugation engine: the suffix rules, forward conjugation, and the Forms tab row definitions. |
+| `conjugation/Deinflector.kt` | The same rules run in reverse for deinflection search, and the English result labels. |
 
 Unit tests live in `app/src/test/`. They're plain JVM tests and can't use Android classes such as `SQLiteDatabase`.
 
@@ -46,12 +49,20 @@ Unit tests live in `app/src/test/`. They're plain JVM tests and can't use Androi
 
 ## 4. Search
 
-- **Japanese queries** go through these tiers in order, each a `GLOB` on `jp_keys`: exact key, whole-word fuzzy key, prefix key, fuzzy prefix key. The deinflected tier is still to be added between whole-word fuzzy and prefix. Results are de-duplicated across tiers and capped at 100.
+- **Japanese queries** go through these tiers in order: exact key, whole-word fuzzy key, deinflected, prefix key, fuzzy prefix key. All but the deinflected tier are a `GLOB` on `jp_keys`. Results are de-duplicated across tiers and capped at 100.
+- **The deinflected tier** runs `Deinflector` on the query, looks up every candidate dictionary form as an exact key (kind 0), and keeps an entry only if `entries.pos` contains the candidate's class. It sorts in Kotlin (common, then rank) and sets `SearchResult.inflection` to the label.
 - **Any input without Japanese characters** is an English query, matched against `en_keys` in three tiers.
 - **Every result** carries a `FormMatch` (which form or reading matched, and how many characters to highlight) and its readings' pitch patterns.
-- `pipeline/query.rb` runs the same tiers against the built database from the command line. Keep the two in sync when the tiers change.
+- `pipeline/query.rb` runs the same tiers against the built database from the command line, except the deinflected tier (that would need a Ruby copy of the conjugation rules). Keep the two in sync when the other tiers change. Deinflection is covered by `DeinflectorTest`.
 
-## 5. Conventions
+## 5. Conjugation engine
+
+- **Rules are data:** each `Rule` says that a word of one class ending in `from` becomes one ending in `to` through a list of `Inflection`s, giving a word of `resultClass` (or a final form when that's null). Classes are JMdict POS codes, plus three internal ones: `NAI` (a verb's plain negative, which conjugates like an い-adjective and adds ないで), `MASU` and `TE_FORM` (which takes いる and ください).
+- **Forwards:** each Forms tab cell is one or more inflection chains (e.g. Past, negative = NEGATIVE then PAST). `Conjugation.conjugate` applies a chain rule by rule.
+- **Backwards:** `Deinflector.deinflect` undoes any rule whose `to` ends the word, then keeps undoing rules whose `resultClass` is the class just reached, up to six steps. Each dictionary-class state it reaches is a candidate.
+- **Adding a class or form:** add rules (and a table row if it's a new form). `DeinflectorTest.reverseRegeneratesTables` checks that every generated cell deinflects back.
+
+## 6. Conventions
 
 - **Japanese text** uses the theme's typography, which sets the Japanese locale (`2026-10-26-dev-environment.md` §7).
 - **Grammar labels** come from `Dictionary.labels(codes)`, which also folds `vs` into 他動詞（する）/自動詞（する）. Never show raw JMdict codes or English POS names.

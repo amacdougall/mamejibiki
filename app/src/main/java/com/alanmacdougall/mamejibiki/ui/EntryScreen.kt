@@ -25,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.alanmacdougall.mamejibiki.conjugation.Conjugation
+import com.alanmacdougall.mamejibiki.conjugation.FormsRow
 import com.alanmacdougall.mamejibiki.data.Dictionary
 import com.alanmacdougall.mamejibiki.data.Entry
 import com.alanmacdougall.mamejibiki.data.FormRef
@@ -40,10 +42,14 @@ enum class EntryTab(val title: String) { WORD("Word"), KANJI("Kanji"), FORMS("Fo
 class EntryState(result: SearchResult) : Screen {
     val entry: Entry = result.entry
     val headword: FormRef = entry.headword(result.match?.form)
+    /** One conjugation table per conjugating POS class, spelled with the headword (UI spec §6). */
+    val formsTables: List<FormsTable> = entry.sense.flatMap { it.partOfSpeech }.distinct().mapNotNull { pos ->
+        Conjugation.table(entry.text(headword), pos)?.let { FormsTable(pos, it) }
+    }
     val tabs: List<EntryTab> = buildList {
         add(EntryTab.WORD)
         if (entry.kanji.any { form -> form.text.any { Kana.isKanji(it) } }) add(EntryTab.KANJI)
-        if (entry.sense.any { s -> s.partOfSpeech.any { it in CONJUGATING_POS || it.startsWith("v5") } }) add(EntryTab.FORMS)
+        if (formsTables.isNotEmpty()) add(EntryTab.FORMS)
     }
     var tab by mutableStateOf(EntryTab.WORD)
     val scroll: Map<EntryTab, ScrollState> = tabs.associateWith { ScrollState(0) }
@@ -51,8 +57,7 @@ class EntryState(result: SearchResult) : Screen {
     var pitch by mutableStateOf<List<List<Accent>>?>(null)
 }
 
-/** POS codes the Forms tab conjugates (UI spec §6), besides the v5 godan family. */
-private val CONJUGATING_POS = setOf("v1", "vk", "vs", "vs-i", "vs-s", "adj-i", "adj-ix")
+data class FormsTable(val pos: String, val rows: List<FormsRow>)
 
 @Composable
 fun EntryScreen(
@@ -88,7 +93,7 @@ fun EntryScreen(
             when (state.tab) {
                 EntryTab.WORD -> if (dictionary != null) WordTab(state, dictionary, onSearch)
                 EntryTab.KANJI -> Placeholder("Kanji details are coming soon.")
-                EntryTab.FORMS -> Placeholder("The conjugation table is coming soon.")
+                EntryTab.FORMS -> if (dictionary != null) FormsTab(state, dictionary)
             }
         }
     }
