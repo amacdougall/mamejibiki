@@ -7,8 +7,13 @@ A personal, offline Japanese dictionary app for Android (Kotlin + Jetpack Compos
 The `plans/` directory is the spec. Read it before starting work:
 - `plans/2026-10-26-ui-notes.md`: UI and behaviour specification.
 - `plans/2026-10-26-feature-research.md`: how AnkiDroid integration, the KanjiVG component breakdown and stroke-practice matching work.
-- `plans/2026-10-26-dev-environment.md`: toolchain, test device, and the build → install → screenshot loop.
+- `plans/architecture.md`: how the app's code is organised (back stack, screen state objects, database access and threading rules).
+- `plans/2026-10-26-dev-environment.md`: toolchain, test device, the build → install → screenshot loop, driving the phone from adb, and running tests.
 - `plans/progress.md`: what's done and what remains, compared with the spec. Read it first to find the next task. Update it at the end of every work session.
+
+## Commits
+
+Commit directly to `main`, and only when the user asks.
 
 ## Writing plan docs
 

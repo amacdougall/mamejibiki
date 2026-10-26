@@ -71,14 +71,32 @@ The phone's main log buffer is small and busy, so app lines roll out within abou
 
 Before sending `adb shell input`, check that the app is in the foreground (`adb shell dumpsys window | grep mCurrentFocus`). Otherwise the input goes to whatever the user has open.
 
+**Driving the UI from adb:**
+- **Typing:** `input text` can only type ASCII, and spaces must be sent as `%s` (`input text "to%sstand%sup"`). Japanese queries can't be typed this way. Reach Japanese searches through See also links on an entry page, check the search tiers with `pipeline/query.rb`, cover logic with unit tests, and ask the user to type Japanese on the phone when a device check needs it.
+- **Tapping:** screenshots are 1080 px wide. Scale coordinates measured on a downscaled screenshot back up before tapping.
+- **Back:** with the keyboard up, the first back only hides the keyboard. Back on the root search screen closes the app. Count presses, and screenshot before assuming which screen is showing.
+- **Configuration changes:** `adb shell cmd uimode night yes` / `no` switches dark mode, which recreates the activity. Read the current value first (`adb shell cmd uimode night`) and restore it afterwards: it's the user's phone setting.
+- **Hangs:** `debuggerd` stack dumps need root, which the phone doesn't have. Diagnose hangs with `Log.i` lines instead.
+- **Keyboard:** Gboard is usually in its 12-key kana layout. `input text` bypasses it.
+
 Screenshots are the main way to check UI work, because the user doesn't read the code. Debug builds use the auto-generated debug signing key. There's no Play Store distribution and no release signing.
 
-## 6. App-wide conventions
+## 6. Tests
+
+```sh
+./gradlew testDebugUnitTest                      # Kotlin unit tests (JVM, app/src/test/)
+cd pipeline && bundle exec ruby -Itest -e 'Dir["test/*_test.rb"].each { |f| require_relative f }'   # Ruby pipeline tests
+```
+
+- Kotlin unit tests run on the JVM and can't touch Android classes or the database. Keep logic that needs testing (normalization, pitch parsing, conjugation) in plain Kotlin.
+- Both test suites check the normalization vectors in `shared/*.json`.
+
+## 7. App-wide conventions
 
 - **Japanese glyph shapes:** text that contains Japanese is marked with the Japanese locale (Compose `LocaleList("ja")`). Otherwise the phone's English locale can render Han-unified kanji (直, 骨, …) in their Chinese forms.
 - **Theme:** Material 3, with light and dark colour schemes following the system setting.
 
-## 7. Data pipeline
+## 8. Data pipeline
 
 - **What it does:** a Ruby program in `pipeline/` reads the source datasets and writes one SQLite database to `app/src/main/assets/mamejibiki.sqlite`.
 - **Built so far:** the words half (JMdict, JPDB frequency, Wadoku pitch, JmdictFurigana).
@@ -87,7 +105,7 @@ Screenshots are the main way to check UI work, because the user doesn't read the
 - **Where it runs:** only on the dev machine, never on the phone.
 - **When it runs:** only when a source dataset is updated or the schema changes. A build takes about 30 s. Ordinary app builds reuse the existing database file.
 - **Size:** about 136 MB on disk and about 70 MB compressed in the APK. That's acceptable for a sideloaded personal app.
-- **Why Ruby:** the Send to AnkiDroid field formats must match `../anki-scripts` exactly. The app builds those fields in Kotlin at send time, and golden test vectors generated with anki-scripts' own Ruby code (`pitch_accent_renderer.rb`, the grammar-label table, the dedup key) prove they match.
+- **Why Ruby:** the Send to AnkiDroid field formats must match `../anki-scripts` exactly. The app builds those fields in Kotlin at send time, and golden test vectors generated with anki-scripts' own Ruby code (`pitch_accent_renderer.rb`, the grammar Notes rules in `add-jmdict-grammar-notes.rb`, the dedup key) prove they match.
 - **Ruby setup:** Ruby 3.4.11 through rbenv (`pipeline/.ruby-version`), with dependencies in `pipeline/Gemfile` managed by Bundler.
 - **Shared normalization:** query normalization is implemented twice, in Ruby for building keys and in Kotlin for queries. Both implementations are tested against the vectors in `shared/*.json`.
 - **What stays out of git:** the downloaded datasets (`pipeline/data/`) and the generated database. The pipeline can rebuild both.

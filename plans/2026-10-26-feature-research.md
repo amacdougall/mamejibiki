@@ -1,7 +1,8 @@
 # Feature research: Anki integration, kanji breakdown, writing practice
 
 Date: 2026-10-26
-Status: information gathering only, nothing is being built yet
+
+Background reference: how other apps implement these features, and what that means for ours. The decisions about what this app builds are in `2026-10-26-ui-notes.md` (§5 kanji pages and practice, §8 Send to AnkiDroid). Where this document lists alternatives, the UI spec says which one applies.
 
 Sources examined:
 - HoshiReader Android source (shallow clone of `HuangAntimony/Hoshi-Reader-Android`, `app/src/main/java/moe/antimony/hoshi/features/anki/`)
@@ -60,7 +61,7 @@ Hoshi can also talk to AnkiConnect over HTTP: JSON-RPC, `{"action": ..., "versio
 ### Takeaways for us
 
 - The AnkiDroid ContentProvider route is the right fit for an offline, on-device app. It's small: a permission, a `<queries>` block, a `FileProvider` for media, and roughly 300 lines of wrapper code.
-- We need to decide on card templates early. We could ship our own note type (`api.addNewCustomModel` / `addNewBasicModel` exist in the API) or follow Hoshi and map onto whatever note type the user already has.
+- The app adds notes to the user's existing Kaishi 1.5k note type with a fixed field mapping (UI spec §8). It doesn't create note types or offer Hoshi-style configurable mappings.
 - Duplicate detection needs the checksum reimplementation. Hoshi's version is a good reference.
 - Hoshi is GPL-licensed. Treat it as a reference for how things work, not as code to copy, unless we're fine with GPL.
 
