@@ -8,6 +8,7 @@ The `plans/` directory is the spec. Read it before starting work:
 - `plans/2026-10-26-ui-notes.md`: UI and behaviour specification.
 - `plans/2026-10-26-feature-research.md`: how AnkiDroid integration, the KanjiVG component breakdown and stroke-practice matching work.
 - `plans/2026-10-26-dev-environment.md`: toolchain, test device, and the build → install → screenshot loop.
+- `plans/progress.md`: what's done and what remains, compared with the spec. Read it first to find the next task. Update it at the end of every work session.
 
 ## Writing plan docs
 
