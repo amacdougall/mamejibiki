@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Gradle / Kotlin / Android build output
+.gradle/
+.kotlin/
+build/
+.cxx/
+captures/
+*.apk
+*.aab
+
+# Machine-specific
+local.properties
+
+# IDE (Android Studio isn't used, but keep it out if it ever is)
+.idea/
+*.iml
+
+# Pipeline downloads and generated database (rebuild with pipeline/build.rb)
+pipeline/data/
+app/src/main/assets/mamejibiki.sqlite
+app/src/main/assets/mamejibiki.version

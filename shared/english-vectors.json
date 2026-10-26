@@ -1,0 +1,17 @@
+{
+  "phrase_key": [
+    ["to hang up (e.g. a coat, a picture on the wall)", "hang up"],
+    ["to eat", "eat"],
+    ["the Netherlands", "netherlands"],
+    ["an apple", "apple"],
+    ["depression; gloom", "depression gloom"],
+    ["Mr.", "mr"],
+    ["one's own", "one's own"],
+    ["T-shirt", "t-shirt"]
+  ],
+  "word_keys": [
+    ["to hang up (e.g. a coat)", ["hang", "up", "coat"]],
+    ["one's own", ["one's", "own"]],
+    ["T-shirt", ["t-shirt"]]
+  ]
+}
