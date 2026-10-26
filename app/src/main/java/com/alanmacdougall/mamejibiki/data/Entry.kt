@@ -11,6 +11,28 @@ data class Entry(
     val kana: List<KanaForm>,
     val sense: List<Sense>,
 ) {
+    fun text(form: FormRef): String = if (form.kind == FormRef.KANJI) kanji[form.index].text else kana[form.index].text
+
+    /** True when the entry is usually written in kana, so its headword is a reading. */
+    val usuallyKana: Boolean get() = kanji.isEmpty() || "uk" in sense.first().misc
+
+    /**
+     * The form shown as the entry's headword and carried into Copy and Send to
+     * AnkiDroid (UI spec §2): the matched written form; or for a matched
+     * reading, that reading if the word is usually written in kana, else the
+     * first common written form it applies to. With no match (English search),
+     * the first written form, or the first reading for kana words.
+     */
+    fun headword(matched: FormRef?): FormRef {
+        if (matched?.kind == FormRef.KANJI) return matched
+        if (matched != null && usuallyKana) return matched
+        val reading = matched?.let { kana[it.index] }
+        if (matched == null && usuallyKana) return FormRef(FormRef.KANA, 0)
+        val candidates = kanji.indices.filter { reading == null || reading.appliesTo(kanji[it].text) }
+        val best = candidates.firstOrNull { !kanji[it].isRare } ?: candidates.firstOrNull()
+        return if (best != null) FormRef(FormRef.KANJI, best) else matched ?: FormRef(FormRef.KANA, 0)
+    }
+
     companion object {
         private val json = Json { ignoreUnknownKeys = true }
 
@@ -35,6 +57,17 @@ data class KanaForm(
     val appliesToKanji: List<String>? = null,
 ) {
     val isRare: Boolean get() = tags.any { it in RARE_KANA_TAGS }
+
+    /** Whether this reading is a reading of the written form [kanji] (a missing list means all forms). */
+    fun appliesTo(kanji: String): Boolean = appliesToKanji?.contains(kanji) ?: true
+}
+
+/** A written form (kind KANJI, index into Entry.kanji) or reading (kind KANA, index into Entry.kana). */
+data class FormRef(val kind: Int, val index: Int) {
+    companion object {
+        const val KANJI = 0
+        const val KANA = 1
+    }
 }
 
 @Serializable

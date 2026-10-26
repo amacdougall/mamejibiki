@@ -21,10 +21,12 @@ end
 
 def japanese(query)
   key = glob_literal(Kana.search_key(query))
+  fuzzy = glob_literal(Kana.fuzzy_key(query))
   tiers = [
     ['exact', 'k.kind = 0 AND k.key GLOB ?', key],
+    ['fuzzy=', 'k.kind = 1 AND k.key GLOB ?', fuzzy],
     ['prefix', 'k.kind = 0 AND k.key GLOB ?', "#{key}*"],
-    ['fuzzy', 'k.kind = 1 AND k.key GLOB ?', "#{glob_literal(Kana.fuzzy_key(query))}*"]
+    ['fuzzy', 'k.kind = 1 AND k.key GLOB ?', "#{fuzzy}*"]
   ]
   run(tiers, 'jp_keys', 'k.form_kind, k.form_index', '')
 end

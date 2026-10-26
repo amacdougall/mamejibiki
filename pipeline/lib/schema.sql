@@ -69,8 +69,10 @@ CREATE TABLE furigana (
   PRIMARY KEY (form, reading)
 ) WITHOUT ROWID;
 
--- JMdict tag codes and their English descriptions (e.g. rK → "rarely used kanji form").
+-- JMdict tag codes, their English descriptions (e.g. rK → "rarely used kanji
+-- form") and Japanese labels from grammar_labels.tsv (e.g. v1 → 一段動詞).
 CREATE TABLE tags (
   code        TEXT PRIMARY KEY,
-  description TEXT NOT NULL
+  description TEXT NOT NULL,
+  label_ja    TEXT NOT NULL
 ) WITHOUT ROWID;

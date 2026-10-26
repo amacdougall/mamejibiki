@@ -22,6 +22,10 @@ Downloads go to `pipeline/data/` (gitignored). Their versions are recorded in `d
 | JPDB v2.2 frequency (Kana edition) | Kuuuube/yomitan-dictionaries, pinned zip | static |
 | Wadoku pitch DB | IllDepence/anki_add_pitch_plugin, pinned, SHA-256 checked | static |
 
+## Japanese labels
+
+`grammar_labels.tsv` maps every JMdict tag code to the Japanese label the app shows (e.g. `v1` → 一段動詞). The build stores it in `tags.label_ja` and stops with an error naming any JMdict code that has no label, so a new JMdict code needs a line added there.
+
 ## Schema
 
 `lib/schema.sql` is the reference. Every table is commented there. `meta.schema_version` is bumped whenever the schema or the entry JSON changes, and the app re-copies the database when it sees a new value.

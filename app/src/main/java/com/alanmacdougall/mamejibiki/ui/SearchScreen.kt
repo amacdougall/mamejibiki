@@ -4,6 +4,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -36,7 +37,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
@@ -47,43 +50,66 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.alanmacdougall.mamejibiki.data.DictionaryDatabase
+import androidx.compose.ui.unit.sp
+import com.alanmacdougall.mamejibiki.data.Dictionary
 import com.alanmacdougall.mamejibiki.search.FormMatch
-import com.alanmacdougall.mamejibiki.search.Search
 import com.alanmacdougall.mamejibiki.search.SearchResult
-import com.alanmacdougall.mamejibiki.search.Tier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/**
+ * One search history entry. The field's text includes uncommitted IME
+ * composition, so results follow the user's typing before kanji conversion.
+ */
+class SearchState(initialQuery: String) : Screen {
+    var field by mutableStateOf(TextFieldValue(initialQuery, TextRange(initialQuery.length)))
+    var results by mutableStateOf<List<SearchResult>>(emptyList())
+    /** The query [results] belong to, so returning to this screen doesn't search again. */
+    var resultsQuery: String? = null
+    val listState = LazyListState()
+    /**
+     * A search pushed by a See also link first shows its results with the
+     * keyboard down. Every other time the screen is shown, the field is focused.
+     */
+    var focusOnShow = initialQuery.isEmpty()
+}
+
 @Composable
-fun SearchScreen(modifier: Modifier = Modifier) {
+fun SearchScreen(
+    state: SearchState,
+    dictionary: Dictionary?,
+    onOpen: (SearchResult) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
-    var search by remember { mutableStateOf<Search?>(null) }
-    // The field's text includes uncommitted IME composition, so results
-    // follow the user's typing before kanji conversion.
-    var field by remember { mutableStateOf(TextFieldValue("")) }
-    var results by remember { mutableStateOf<List<SearchResult>>(emptyList()) }
+    val keyboard = LocalSoftwareKeyboardController.current
     val focus = remember { FocusRequester() }
-    val listState = rememberLazyListState()
+    val field = state.field
+    val results = state.results
 
     LaunchedEffect(Unit) {
-        focus.requestFocus()
-        search = withContext(Dispatchers.IO) { Search(DictionaryDatabase.open(context.applicationContext)) }
+        if (state.focusOnShow) {
+            state.field = state.field.copy(selection = TextRange(state.field.text.length))
+            focus.requestFocus()
+        }
+        state.focusOnShow = true
     }
 
-    LaunchedEffect(search, field.text) {
-        val s = search ?: return@LaunchedEffect
+    LaunchedEffect(dictionary, field.text) {
+        val d = dictionary ?: return@LaunchedEffect
         val query = field.text
+        if (query == state.resultsQuery) return@LaunchedEffect
         val started = System.nanoTime()
-        results = withContext(Dispatchers.IO) { s.run(query) }
-        Log.i("Search", "'$query' → ${results.size} results in ${(System.nanoTime() - started) / 1_000_000} ms")
-        listState.scrollToItem(0)
+        state.results = withContext(Dispatchers.IO) { d.search(query) }
+        state.resultsQuery = query
+        Log.i("Search", "'$query' → ${state.results.size} results in ${(System.nanoTime() - started) / 1_000_000} ms")
+        state.listState.scrollToItem(0)
     }
 
     Column(modifier.fillMaxSize()) {
         OutlinedTextField(
             value = field,
-            onValueChange = { field = it },
+            onValueChange = { state.field = it },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 8.dp)
@@ -94,10 +120,10 @@ fun SearchScreen(modifier: Modifier = Modifier) {
                 if (field.text.isEmpty()) {
                     IconButton(onClick = {
                         val pasted = clipboardText(context)
-                        if (pasted.isNotBlank()) field = TextFieldValue(pasted, TextRange(pasted.length))
+                        if (pasted.isNotBlank()) state.field = TextFieldValue(pasted, TextRange(pasted.length))
                     }) { Icon(PasteIcon, contentDescription = "Paste") }
                 } else {
-                    IconButton(onClick = { field = TextFieldValue("") }) {
+                    IconButton(onClick = { state.field = TextFieldValue("") }) {
                         Icon(Icons.Filled.Clear, contentDescription = "Clear")
                     }
                 }
@@ -108,7 +134,7 @@ fun SearchScreen(modifier: Modifier = Modifier) {
         )
 
         when {
-            search == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            dictionary == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator()
                     Text("Preparing dictionary…", Modifier.padding(top = 12.dp), style = MaterialTheme.typography.bodyMedium)
@@ -120,9 +146,12 @@ fun SearchScreen(modifier: Modifier = Modifier) {
                 Modifier.padding(24.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            else -> LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+            else -> LazyColumn(state = state.listState, modifier = Modifier.fillMaxSize()) {
                 items(results, key = { it.id }) { result ->
-                    ResultRow(result)
+                    ResultRow(result, onClick = {
+                        keyboard?.hide()
+                        onOpen(result)
+                    })
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
@@ -141,17 +170,20 @@ private fun EmptyHelp() {
 }
 
 @Composable
-private fun ResultRow(result: SearchResult) {
+private fun ResultRow(result: SearchResult, onClick: () -> Unit) {
     Column(
         Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                formsLine(result),
-                style = MaterialTheme.typography.titleMedium,
+            val (forms, pitch) = formsLine(result)
+            PitchText(
+                forms,
+                pitch,
+                style = MaterialTheme.typography.titleMedium.copy(lineHeight = 30.sp),
                 modifier = Modifier.weight(1f, fill = false),
             )
             if (result.entry.kanji.any { it.common } || result.entry.kana.any { it.common }) Badge("common")
@@ -180,18 +212,25 @@ private fun Badge(label: String) {
     )
 }
 
-/** All written forms then all readings; the matched one highlighted, rare ones greyed. */
+/**
+ * All written forms then all readings; the matched one highlighted, rare ones
+ * greyed. Readings carry their first pitch accent pattern.
+ */
 @Composable
-private fun formsLine(result: SearchResult): AnnotatedString {
+private fun formsLine(result: SearchResult): Pair<AnnotatedString, List<PitchLine>> {
     val accent = MaterialTheme.colorScheme.primary
     val accentRemainder = accent.copy(alpha = 0.6f)
     val rare = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     val forms = result.entry.kanji.mapIndexed { i, k -> Triple(0, i, k.text) to k.isRare } +
         result.entry.kana.mapIndexed { i, r -> Triple(1, i, r.text) to r.isRare }
-    return buildAnnotatedString {
+    val pitch = ArrayList<PitchLine>()
+    val text = buildAnnotatedString {
         forms.forEachIndexed { n, (form, isRare) ->
             if (n > 0) withStyle(SpanStyle(color = rare)) { append(", ") }
             val (kind, index, text) = form
+            result.pitch.getOrNull(index)?.firstOrNull()?.takeIf { kind == 1 }?.let { accent ->
+                pitch += pitchLines(text, accent, offset = length, color = if (isRare) rare else Color.Unspecified)
+            }
             val match: FormMatch? = result.match?.takeIf { it.formKind == kind && it.formIndex == index }
             when {
                 match != null -> {
@@ -204,6 +243,7 @@ private fun formsLine(result: SearchResult): AnnotatedString {
             }
         }
     }
+    return text to pitch
 }
 
 private fun glossLine(result: SearchResult): String {

@@ -4,22 +4,22 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
+import androidx.activity.viewModels
+import com.alanmacdougall.mamejibiki.ui.App
+import com.alanmacdougall.mamejibiki.ui.AppModel
 import com.alanmacdougall.mamejibiki.ui.MamejibikiTheme
-import com.alanmacdougall.mamejibiki.ui.SearchScreen
 
 class MainActivity : ComponentActivity() {
+    private val model: AppModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Create the model here, not lazily inside the first composition.
+        val model = model
         setContent {
             MamejibikiTheme {
-                Scaffold { padding ->
-                    SearchScreen(Modifier.padding(padding).imePadding())
-                }
+                App(model)
             }
         }
     }

@@ -14,13 +14,14 @@ require_relative 'lib/sources'
 require_relative 'lib/kana'
 require_relative 'lib/english'
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 BUILD_PATH = File.join(Sources::DATA_DIR, 'mamejibiki.sqlite')
 INSTALL_PATH = File.expand_path('../app/src/main/assets/mamejibiki.sqlite', __dir__)
 # The app re-copies the database out of the APK whenever this file's contents change.
 VERSION_PATH = File.expand_path('../app/src/main/assets/mamejibiki.version', __dir__)
 MIN_ENTRIES = 150_000
 BUILT_AT = Time.now.utc.iso8601
+GRAMMAR_LABELS_PATH = File.join(__dir__, 'grammar_labels.tsv')
 
 def step(title)
   started = Time.now
@@ -110,13 +111,23 @@ def entry_rank(entry, ranks)
   candidates.compact.min
 end
 
+# { code => Japanese label } from grammar_labels.tsv.
+def load_grammar_labels
+  File.readlines(GRAMMAR_LABELS_PATH, chomp: true).reject { |l| l.empty? || l.start_with?('#') }
+      .to_h { |l| l.split("\t", 2) }
+end
+
 def import_jmdict(db, ranks)
   data = JSON.parse(File.read(Sources::JMDICT_PATH))
   words = data['words']
   raise "JMdict looks incomplete (#{words.size} entries)" if words.size < MIN_ENTRIES
 
-  insert_tags = db.prepare('INSERT INTO tags VALUES (?, ?)')
-  data['tags'].each { |code, description| insert_tags.execute(code, description) }
+  labels = load_grammar_labels
+  missing = data['tags'].keys - labels.keys
+  raise "grammar_labels.tsv has no Japanese label for: #{missing.join(', ')}" if missing.any?
+
+  insert_tags = db.prepare('INSERT INTO tags VALUES (?, ?, ?)')
+  data['tags'].each { |code, description| insert_tags.execute(code, description, labels[code]) }
 
   insert_entry = db.prepare('INSERT INTO entries VALUES (?, ?, ?, ?, ?)')
   insert_jp = db.prepare('INSERT OR IGNORE INTO jp_keys VALUES (?, ?, ?, ?, ?)')

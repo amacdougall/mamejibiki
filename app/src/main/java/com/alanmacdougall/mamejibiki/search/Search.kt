@@ -2,8 +2,10 @@ package com.alanmacdougall.mamejibiki.search
 
 import android.database.sqlite.SQLiteDatabase
 import com.alanmacdougall.mamejibiki.data.Entry
+import com.alanmacdougall.mamejibiki.data.FormRef
+import com.alanmacdougall.mamejibiki.pitch.Accent
 
-enum class Tier { EXACT, PREFIX, FUZZY, ENGLISH_EXACT, ENGLISH_PREFIX, ENGLISH_WORD }
+enum class Tier { EXACT, FUZZY_EXACT, PREFIX, FUZZY, ENGLISH_EXACT, ENGLISH_PREFIX, ENGLISH_WORD }
 
 /**
  * Which written form (formKind 0, index into Entry.kanji) or reading
@@ -11,13 +13,17 @@ enum class Tier { EXACT, PREFIX, FUZZY, ENGLISH_EXACT, ENGLISH_PREFIX, ENGLISH_W
  * [highlightLength] is how many leading characters matched; null means the
  * whole form (fuzzy matches have no character-level alignment).
  */
-data class FormMatch(val formKind: Int, val formIndex: Int, val highlightLength: Int?)
+data class FormMatch(val formKind: Int, val formIndex: Int, val highlightLength: Int?) {
+    val form: FormRef get() = FormRef(formKind, formIndex)
+}
 
+/** [pitch] holds each reading's accent patterns, indexed like Entry.kana. */
 data class SearchResult(
     val id: Long,
     val entry: Entry,
     val tier: Tier,
     val match: FormMatch?,
+    val pitch: List<List<Accent>> = emptyList(),
 )
 
 /** The search tiers from the UI spec §2, prototyped in pipeline/query.rb. */
@@ -32,17 +38,15 @@ class Search(private val db: SQLiteDatabase) {
     private fun japanese(query: String): List<SearchResult> {
         val key = globLiteral(Kana.searchKey(query), keepWildcard = true)
         val fuzzy = globLiteral(Kana.fuzzyKey(query), keepWildcard = true)
+        // A whole-word fuzzy match (ゆき for ゆうき) ranks with exact matches, above prefix matches.
         val tiers = listOf(
             TierQuery(Tier.EXACT, "k.kind = 0 AND k.key GLOB ?", key),
+            TierQuery(Tier.FUZZY_EXACT, "k.kind = 1 AND k.key GLOB ?", fuzzy),
             TierQuery(Tier.PREFIX, "k.kind = 0 AND k.key GLOB ?", "$key*"),
             TierQuery(Tier.FUZZY, "k.kind = 1 AND k.key GLOB ?", "$fuzzy*"),
         )
         return collect(tiers, "jp_keys", "k.form_kind, k.form_index", firstOrder = "") { tier, cursor ->
-            val highlight = when (tier) {
-                Tier.EXACT -> null
-                Tier.PREFIX -> query.length
-                else -> null
-            }
+            val highlight = if (tier == Tier.PREFIX) query.length else null
             FormMatch(cursor.getInt(4), cursor.getInt(5), highlight)
         }
     }

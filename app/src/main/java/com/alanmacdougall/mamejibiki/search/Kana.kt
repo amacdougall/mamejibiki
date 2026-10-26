@@ -36,6 +36,8 @@ object Kana {
         }
     }
 
+    fun isKanji(c: Char): Boolean = c in '㐀'..'鿿' || c in '豈'..'﫿' || c == '々'
+
     fun hasJapanese(text: String): Boolean = text.any {
         it in '぀'..'ヿ' || it in '㐀'..'鿿' || it in '豈'..'﫿' || it == '々'
     }
