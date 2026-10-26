@@ -63,9 +63,13 @@ export PATH=$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-to
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb shell am start -W -n com.alanmacdougall.mamejibiki/.MainActivity
 adb exec-out screencap -p > <scratch>/shot.png    # then downscale, e.g. sips -Z 1000
-adb logcat -s Search:I AndroidRuntime:E            # app logs and crashes (this Pixel filters out Log.d, so use Log.i)
+adb logcat -s Search:I AndroidRuntime:E            # app logs and crashes; read soon after the action (see below)
 adb shell input tap X Y / input text … / uiautomator dump   # drive the UI
 ```
+
+The phone's main log buffer is small and busy, so app lines roll out within about a minute at the default buffer size. Read logcat right after the action. Developer options → Logger buffer sizes (16M) extends the window.
+
+Before sending `adb shell input`, check that the app is in the foreground (`adb shell dumpsys window | grep mCurrentFocus`). Otherwise the input goes to whatever the user has open.
 
 Screenshots are the main way to check UI work, because the user doesn't read the code. Debug builds use the auto-generated debug signing key. There's no Play Store distribution and no release signing.
 
