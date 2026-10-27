@@ -54,6 +54,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alanmacdougall.mamejibiki.data.Dictionary
@@ -201,12 +202,13 @@ private fun ResultRow(result: SearchResult, onClick: () -> Unit, onCopy: () -> U
     }
 }
 
+/** A result row's forms, badges and senses. Also used for a kanji block's entries. */
 @Composable
-private fun ResultRowContent(result: SearchResult, modifier: Modifier) {
+fun ResultRowContent(result: SearchResult, modifier: Modifier, horizontalPadding: Dp = 16.dp) {
     Column(
         modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(horizontal = horizontalPadding, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

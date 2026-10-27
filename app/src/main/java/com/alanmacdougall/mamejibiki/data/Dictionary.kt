@@ -7,8 +7,10 @@ import com.alanmacdougall.mamejibiki.anki.KaishiNote
 import com.alanmacdougall.mamejibiki.pitch.Accent
 import com.alanmacdougall.mamejibiki.pitch.Pitch
 import com.alanmacdougall.mamejibiki.search.Kana
+import com.alanmacdougall.mamejibiki.search.FormMatch
 import com.alanmacdougall.mamejibiki.search.Search
 import com.alanmacdougall.mamejibiki.search.SearchResult
+import com.alanmacdougall.mamejibiki.search.Tier
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
@@ -99,6 +101,38 @@ class Dictionary private constructor(private val db: SQLiteDatabase) {
         db.rawQuery("SELECT kanji FROM kanji_parts WHERE component = ? ORDER BY ord", arrayOf(component)).use { c ->
             while (c.moveToNext()) add(c.getString(0))
         }
+    }
+
+    /**
+     * The most common entries with [literal] in a written form (UI spec §5),
+     * as search results matching that form. Entries whose headword contains the
+     * kanji come first; entries that only use it in another form fill the rest.
+     */
+    fun entriesWith(literal: String, limit: Int): List<SearchResult> {
+        val sql = """
+            SELECT e.id, e.data FROM jp_keys k JOIN entries e ON e.id = k.entry_id
+            WHERE k.kind = 0 AND k.form_kind = 0 AND k.key GLOB ?
+            GROUP BY e.id
+            ORDER BY e.rank IS NULL, e.rank, e.common DESC
+            LIMIT 60
+        """.trimIndent()
+        val headed = ArrayList<SearchResult>()
+        val others = ArrayList<SearchResult>()
+        db.rawQuery(sql, arrayOf("*${Search.globLiteral(literal, keepWildcard = false)}*")).use { c ->
+            while (c.moveToNext() && headed.size < limit) {
+                val entry = Entry.decode(c.getString(1))
+                val headword = entry.headword(null)
+                val form = if (headword.kind == FormRef.KANJI && literal in entry.kanji[headword.index].text) {
+                    headword.index
+                } else {
+                    val withKanji = entry.kanji.indices.filter { literal in entry.kanji[it].text }
+                    withKanji.firstOrNull { !entry.kanji[it].isRare } ?: withKanji.firstOrNull() ?: continue
+                }
+                val result = SearchResult(c.getLong(0), entry, Tier.EXACT, FormMatch(FormRef.KANJI, form, null))
+                if (form == headword.index && headword.kind == FormRef.KANJI) headed += result else others += result
+            }
+        }
+        return (headed + others).take(limit).map { it.copy(pitch = readingPitches(it.entry, it.entry.headword(it.match?.form))) }
     }
 
     /** JmdictFurigana's segments for a written form and reading: (text, reading), reading null for kana. */

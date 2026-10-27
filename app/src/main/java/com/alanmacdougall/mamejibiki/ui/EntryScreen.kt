@@ -71,6 +71,7 @@ fun EntryScreen(
     onBack: () -> Unit,
     onSearch: (String) -> Unit,
     onOpenKanji: (String, String?) -> Unit,
+    onOpenEntry: (SearchResult) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(dictionary) {
@@ -104,7 +105,7 @@ fun EntryScreen(
         Box(Modifier.fillMaxSize().verticalScroll(state.scroll.getValue(state.tab))) {
             when (state.tab) {
                 EntryTab.WORD -> if (dictionary != null) WordTab(state, dictionary, onSearch)
-                EntryTab.KANJI -> state.kanjiBlocks?.let { KanjiBlocks(it, onOpenKanji) }
+                EntryTab.KANJI -> state.kanjiBlocks?.let { KanjiBlocks(it, onOpenKanji, onOpenEntry, onSearch) }
                 EntryTab.FORMS -> if (dictionary != null) FormsTab(state, dictionary)
             }
         }

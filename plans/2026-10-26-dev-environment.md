@@ -100,12 +100,11 @@ cd pipeline && bundle exec ruby -Itest -e 'Dir["test/*_test.rb"].each { |f| requ
 ## 8. Data pipeline
 
 - **What it does:** a Ruby program in `pipeline/` reads the source datasets and writes one SQLite database to `app/src/main/assets/mamejibiki.sqlite`.
-- **Built so far:** the words half (JMdict, JPDB frequency, Wadoku pitch, JmdictFurigana).
-- **Still to add:** the kanji half (KANJIDIC2 from jmdict-simplified's `kanjidic2-en` JSON release, and KanjiVG).
+- **Sources:** the words half (JMdict, JPDB frequency, Wadoku pitch, JmdictFurigana) and the kanji half (KANJIDIC2 from jmdict-simplified's `kanjidic2-en` JSON release, KanjiVG, JLPT levels from kanji-data).
 - **Commands, sources, schema and entry JSON shape:** see `pipeline/README.md`.
 - **Where it runs:** only on the dev machine, never on the phone.
 - **When it runs:** only when a source dataset is updated or the schema changes. A build takes about 30 s. Ordinary app builds reuse the existing database file.
-- **Size:** about 136 MB on disk and about 70 MB compressed in the APK. That's acceptable for a sideloaded personal app.
+- **Size:** about 146 MB on disk and about 70 MB compressed in the APK. That's acceptable for a sideloaded personal app.
 - **Why Ruby:** the Send to AnkiDroid field formats must match `../anki-scripts` exactly. The app builds those fields in Kotlin at send time, and golden test vectors generated with anki-scripts' own Ruby code (`pitch_accent_renderer.rb`, the grammar Notes rules in `add-jmdict-grammar-notes.rb`, the dedup key) prove they match.
 - **Ruby setup:** Ruby 3.4.11 through rbenv (`pipeline/.ruby-version`), with dependencies in `pipeline/Gemfile` managed by Bundler.
 - **Shared normalization:** query normalization is implemented twice, in Ruby for building keys and in Kotlin for queries. Both implementations are tested against the vectors in `shared/*.json`.

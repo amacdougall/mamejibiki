@@ -99,10 +99,17 @@ fun App(model: AppModel) {
                     )
                 }
                 is EntryState -> key(screen) {
-                    EntryScreen(screen, model.dictionary, onBack = model::pop, onSearch = model::search, onOpenKanji = model::openKanji)
+                    EntryScreen(screen, model.dictionary, onBack = model::pop, onSearch = model::search, onOpenKanji = model::openKanji, onOpenEntry = model::openEntry)
                 }
                 is KanjiState -> key(screen) {
-                    KanjiScreen(screen, model.dictionary, onBack = model::pop, onOpenKanji = model::openKanji)
+                    KanjiScreen(
+                        screen,
+                        model.dictionary,
+                        onBack = model::pop,
+                        onOpenKanji = model::openKanji,
+                        onOpenEntry = model::openEntry,
+                        onSearch = model::search,
+                    )
                 }
             }
         }

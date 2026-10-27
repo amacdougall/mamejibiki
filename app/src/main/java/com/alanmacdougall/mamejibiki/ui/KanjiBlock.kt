@@ -14,7 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,6 +38,10 @@ import com.alanmacdougall.mamejibiki.data.KanjiNode
 import com.alanmacdougall.mamejibiki.kanji.ReadingHighlight
 import com.alanmacdougall.mamejibiki.kanji.WordKanji
 import com.alanmacdougall.mamejibiki.kanji.WordKanjiList
+import com.alanmacdougall.mamejibiki.search.SearchResult
+
+/** How many of the most common entries using the kanji are shown. */
+private const val ENTRY_COUNT = 3
 
 /** How many Contained in kanji show before "More". */
 private const val CONTAINED_IN_BATCH = 30
@@ -46,12 +55,17 @@ class KanjiBlockState(
     val info: KanjiInfo?,
     val variantOf: String?,
     val strokeCount: Int?,
+    /** KanjiVG path data for each stroke, or null when KanjiVG doesn't cover the kanji (no Practice button). */
+    val strokes: List<String>?,
     val tree: KanjiNode?,
     val nodeInfo: Map<String, KanjiInfo>,
+    /** The most common entries with the kanji in a written form. */
+    val entries: List<SearchResult>,
     val containedIn: List<String>,
     val highlight: ReadingHighlight,
 ) {
     var showAllContainedIn by mutableStateOf(false)
+    var practiceOpen by mutableStateOf(false)
 
     companion object {
         /**
@@ -70,8 +84,10 @@ class KanjiBlockState(
                 info = info,
                 variantOf = original.takeIf { own == null && info != null },
                 strokeCount = own?.strokes ?: vg?.strokes?.size,
+                strokes = vg?.strokes?.takeIf { it.isNotEmpty() },
                 tree = vg?.tree,
                 nodeInfo = infos,
+                entries = dictionary.entriesWith(literal, ENTRY_COUNT),
                 containedIn = dictionary.containedIn(literal),
                 highlight = if (info != null && ruby != null) WordKanjiList.highlight(literal, ruby, info.on, info.kun) else ReadingHighlight.NONE,
             )
@@ -81,19 +97,32 @@ class KanjiBlockState(
 
 /** Kanji blocks stacked vertically, divided by rules: the kanji display container. */
 @Composable
-fun KanjiBlocks(blocks: List<KanjiBlockState>, onOpenKanji: (String, String?) -> Unit) {
+fun KanjiBlocks(
+    blocks: List<KanjiBlockState>,
+    onOpenKanji: (String, String?) -> Unit,
+    onOpenEntry: (SearchResult) -> Unit,
+    onSearch: (String) -> Unit,
+) {
     Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
         blocks.forEachIndexed { i, block ->
             if (i > 0) HorizontalDivider()
-            KanjiBlock(block, onOpenKanji)
+            KanjiBlock(block, onOpenKanji, onOpenEntry, onSearch)
         }
     }
 }
 
-/** A kanji block: header row, component breakdown and Contained in. Taps open kanji pages. */
+/**
+ * A kanji block: header row, practice area, component breakdown, entries and
+ * Contained in. Taps open kanji pages and entries; "See more" searches for the kanji.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun KanjiBlock(state: KanjiBlockState, onOpenKanji: (String, String?) -> Unit) {
+fun KanjiBlock(
+    state: KanjiBlockState,
+    onOpenKanji: (String, String?) -> Unit,
+    onOpenEntry: (SearchResult) -> Unit,
+    onSearch: (String) -> Unit,
+) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -128,12 +157,34 @@ fun KanjiBlock(state: KanjiBlockState, onOpenKanji: (String, String?) -> Unit) {
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
+            state.strokes?.let { strokes ->
+                FilledTonalButton(onClick = { state.practiceOpen = !state.practiceOpen }) {
+                    Text("Practice")
+                    Icon(
+                        if (state.practiceOpen) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = null,
+                        Modifier.padding(start = 4.dp),
+                    )
+                }
+                if (state.practiceOpen) PracticeCanvas(strokes, Modifier.fillMaxWidth())
+            }
         }
 
         val components = state.tree?.c.orEmpty()
         if (components.isNotEmpty()) {
             Section("Components") {
                 Column { for (node in components) ComponentNode(node, 0, state.nodeInfo, onOpenKanji) }
+            }
+        }
+
+        if (state.entries.isNotEmpty()) {
+            Section("Entries") {
+                Column {
+                    for (result in state.entries) {
+                        ResultRowContent(result, Modifier.clickable { onOpenEntry(result) }, horizontalPadding = 0.dp)
+                    }
+                }
+                TextButton(onClick = { onSearch(state.literal) }) { Text("See more") }
             }
         }
 

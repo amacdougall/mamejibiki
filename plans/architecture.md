@@ -16,12 +16,13 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Loads the Kanji tab's blocks the first time the tab is shown. |
 | `ui/WordTab.kt` | The Word tab (UI spec §4). |
 | `ui/FormsTab.kt` | The Forms tab (UI spec §6), drawing `EntryState.formsTables`. |
-| `ui/KanjiBlock.kt` | `KanjiBlockState` (one loaded kanji block, with its "More" flag) and the kanji display container (UI spec §5): header, component tree, Contained in. Shared by the Kanji tab and the kanji page. |
+| `ui/KanjiBlock.kt` | `KanjiBlockState` (one loaded kanji block, with its "More" and practice-expanded flags) and the kanji display container (UI spec §5): header, Practice button, component tree, Entries (drawn with the search screen's `ResultRowContent`), Contained in. Shared by the Kanji tab and the kanji page. |
+| `ui/PracticeCanvas.kt` | The practice canvas: guide grid, touch input that never scrolls the page, Hint / Show Me / Clear, and the stroke animations. Draws reference strokes with Compose's `PathParser` and grades with `practice/`. Its run lives in `remember`, so the drawing isn't kept in history. |
 | `ui/KanjiScreen.kt` | `KanjiState` and the standalone kanji page. |
 | `ui/PitchText.kt` | `PitchText`, a `Text` with pitch accent overlines drawn over chosen character ranges. |
 | `ui/Theme.kt`, `ui/Icons.kt` | Material 3 theme with Japanese-locale typography; icons missing from material-icons-core. |
 | `data/DictionaryDatabase.kt` | Copies the SQLite asset into app storage when its version stamp changes, and opens it read-only. |
-| `data/Dictionary.kt` | The only way screens read the database: search, per-reading pitch lookup, tag descriptions and Japanese labels, kanji data, KanjiVG trees and strokes, Contained in, furigana. |
+| `data/Dictionary.kt` | The only way screens read the database: search, per-reading pitch lookup, tag descriptions and Japanese labels, kanji data, KanjiVG trees and strokes, Contained in, the entries using a kanji, furigana. |
 | `data/Kanji.kt` | The kanji JSON models: `KanjiInfo` (KANJIDIC2), `KanjiNode` (component tree), `KanjiVg`. |
 | `data/Entry.kt` | The entry JSON model (`Entry`, `KanjiForm`, `KanaForm`, `Sense`), `FormRef`, and the headword rule (UI spec §2). |
 | `search/Search.kt` | The ranked search tiers (`Tier`) over `jp_keys` and `en_keys`. |
@@ -33,6 +34,9 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `conjugation/Conjugation.kt` | The conjugation engine: the suffix rules, forward conjugation, and the Forms tab row definitions. |
 | `conjugation/Deinflector.kt` | The same rules run in reverse for deinflection search, and the English result labels. |
 | `kanji/WordKanji.kt` | The Kanji tab's kanji order and the reading-highlight matcher (UI spec §5). Pure Kotlin. |
+| `practice/Stroke.kt` | Flattens KanjiVG path data (`M m C c S s`) to polylines in the 109-unit space; length, resampling, prefixes. Pure Kotlin. |
+| `practice/StrokeScore.kt` | The stroke score and its thresholds (research doc §3). Pure Kotlin. |
+| `practice/PracticeSession.kt` | One practice run: stroke order, misses, warnings, automatic Hint, Show Me and the completion grade. Pure Kotlin. |
 
 Unit tests live in `app/src/test/`. They're plain JVM tests and can't use Android classes such as `SQLiteDatabase`.
 

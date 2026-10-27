@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.alanmacdougall.mamejibiki.data.Dictionary
+import com.alanmacdougall.mamejibiki.search.SearchResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -36,6 +37,8 @@ fun KanjiScreen(
     dictionary: Dictionary?,
     onBack: () -> Unit,
     onOpenKanji: (String, String?) -> Unit,
+    onOpenEntry: (SearchResult) -> Unit,
+    onSearch: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(dictionary) {
@@ -49,7 +52,7 @@ fun KanjiScreen(
             Text(state.literal, style = MaterialTheme.typography.titleLarge)
         }
         Box(Modifier.fillMaxSize().verticalScroll(state.scroll)) {
-            state.block?.let { KanjiBlocks(listOf(it), onOpenKanji) }
+            state.block?.let { KanjiBlocks(listOf(it), onOpenKanji, onOpenEntry, onSearch) }
         }
     }
 }
