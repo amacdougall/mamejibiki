@@ -20,7 +20,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 2 | Long-press menu (Copy, Send to AnkiDroid) | ✅ | |
 | 3 | Entry page header and tabs | ✅ | |
 | 4 | Word tab | ✅ | Headword, other forms, readings with all pitch patterns, senses grouped by part of speech under Japanese label headers (する folded into 他動詞（する）), numbered senses with their own labels, notes and tappable See also / Antonym links. |
-| 5 | Kanji tab, kanji pages, practice canvas | ✅ | The Kanji tab, kanji pages, header with reading highlight, component tree, Entries with "See more", Contained in with "More", and the practice canvas (`practice/`, `ui/PracticeCanvas.kt`). The user hasn't drawn on it by hand yet (Log, session 7). |
+| 5 | Kanji tab, kanji pages, practice canvas | ✅ | The Kanji tab, kanji pages, header with reading highlight, component tree, Entries with "See more", Contained in with "More", and the practice canvas (`practice/`, `ui/PracticeCanvas.kt`). The user uses the practice canvas by hand on the phone, and it works as intended. |
 | 6 | Forms tab and conjugation engine | ✅ | `conjugation/` (`architecture.md` §5). Unit tests check the 引く and 高い tables cell by cell, plus each class's distinctive cells. Checked on the device: 引く, 食べる, 来る, 勉強, 高い, いい. |
 | 7 | Pitch accent rendering | ✅ | `pitch/Pitch.kt` (parsing, unit-tested) and `ui/PitchText.kt` (drawing). |
 | 8 | Send to AnkiDroid | ✅ | Fields checked against golden vectors from anki-scripts' code. On the device: the permission prompt, adding a note (槍, checked by the user in AnkiDroid and desktop Anki), and the duplicate path (食べる). |
@@ -94,7 +94,6 @@ One entry per work session, newest last.
 - All 79,821 KanjiVG strokes in the database parse, including implicit repeated commands.
 - Decisions recorded in UI spec §5: the completion grade rule, stroke colours, and Show Me writing the remaining strokes out in order.
 - Checked on the device by drawing with `adb shell input motionevent`: on 日, a reversed first stroke flashed red and faded, the corrected stroke turned red (correct after a miss), the hook stroke snapped into place, Hint wrote the next stroke, finishing gave a yellow tint, and Clear and Show Me (red tint) worked. The page didn't scroll while drawing vertical strokes. On 陽光's Kanji tab: Show Me for 陽, back from a component's kanji page restored the open practice area and scroll position, and drawing and Hint in dark mode.
-- Still to do: the user draws a few kanji by hand on the phone (e.g. 日, 陽, 書).
 
 ### 2026-10-26, session 8: kanji block Entries
 - Slowed the accepted-stroke morph to 500 ms (the user's request).
@@ -112,3 +111,7 @@ One entry per work session, newest last.
 
 ### 2026-10-26, session 10 (continued): launcher icon
 - Added an adaptive launcher icon (`res/mipmap-anydpi/ic_launcher.xml` and three vector drawables in `res/drawable/`): a tilted red book with a cream label and a yellow ribbon on navy, plus a monochrome layer for themed icons. Checked on the device's app info page.
+
+### 2026-10-27, session 11: README
+- Wrote `README.md`: screenshots (`docs/screenshots/`, taken on the device by driving the app over adb, including drawing 陽 on the practice canvas with `input motionevent`), a feature list / user's manual, and a Getting Started section for another developer's AI agent.
+- The user confirmed the practice canvas works when drawing by hand. They've been using it.
