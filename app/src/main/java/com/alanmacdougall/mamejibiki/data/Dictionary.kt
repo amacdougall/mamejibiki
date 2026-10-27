@@ -9,6 +9,12 @@ import com.alanmacdougall.mamejibiki.pitch.Pitch
 import com.alanmacdougall.mamejibiki.search.Kana
 import com.alanmacdougall.mamejibiki.search.Search
 import com.alanmacdougall.mamejibiki.search.SearchResult
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 
 /** A JMdict tag code's English description and Japanese label. */
 data class Tag(val description: String, val label: String)
@@ -69,6 +75,41 @@ class Dictionary private constructor(private val db: SQLiteDatabase) {
             if (c.moveToFirst()) c.getInt(0) else null
         }
     }
+
+    /** KANJIDIC2 data for each of [literals] that has an entry. */
+    fun kanji(literals: Collection<String>): Map<String, KanjiInfo> {
+        if (literals.isEmpty()) return emptyMap()
+        val placeholders = literals.joinToString(",") { "?" }
+        return buildMap {
+            db.rawQuery("SELECT literal, data FROM kanji WHERE literal IN ($placeholders)", literals.toTypedArray()).use { c ->
+                while (c.moveToNext()) put(c.getString(0), KanjiInfo.decode(c.getString(1)))
+            }
+        }
+    }
+
+    /** A character's KanjiVG strokes and component tree, or null if KanjiVG doesn't have it. */
+    fun kanjiVg(literal: String): KanjiVg? =
+        db.rawQuery("SELECT strokes, tree FROM kanji_vg WHERE literal = ?", arrayOf(literal)).use { c ->
+            if (!c.moveToFirst()) return null
+            KanjiVg(Json.decodeFromString(ListSerializer(String.serializer()), c.getString(0)), KanjiNode.decode(c.getString(1)))
+        }
+
+    /** The kanji that contain [component] anywhere in their component tree, in Contained in order (UI spec §5). */
+    fun containedIn(component: String): List<String> = buildList {
+        db.rawQuery("SELECT kanji FROM kanji_parts WHERE component = ? ORDER BY ord", arrayOf(component)).use { c ->
+            while (c.moveToNext()) add(c.getString(0))
+        }
+    }
+
+    /** JmdictFurigana's segments for a written form and reading: (text, reading), reading null for kana. */
+    fun furigana(form: String, reading: String): List<Pair<String, String?>>? =
+        db.rawQuery("SELECT ruby FROM furigana WHERE form = ? AND reading = ?", arrayOf(form, reading)).use { c ->
+            if (!c.moveToFirst()) return null
+            Json.parseToJsonElement(c.getString(0)).jsonArray.map { segment ->
+                val (text, rt) = segment.jsonArray.map { it.jsonPrimitive.contentOrNull }
+                text.orEmpty() to rt
+            }
+        }
 
     /** The Kaishi 1.5k note for an entry, with the headword chosen from [matched] (UI spec §8). */
     fun kaishiNote(entry: Entry, matched: FormRef?): KaishiNote {

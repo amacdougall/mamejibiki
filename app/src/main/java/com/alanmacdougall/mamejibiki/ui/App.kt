@@ -59,6 +59,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun search(text: String) = push(SearchState(text))
 
+    fun openKanji(literal: String, original: String?) = push(KanjiState(literal, original))
+
     /** Shows a message in the snackbar, replacing any message already showing. */
     fun notify(message: String) {
         viewModelScope.launch {
@@ -97,7 +99,10 @@ fun App(model: AppModel) {
                     )
                 }
                 is EntryState -> key(screen) {
-                    EntryScreen(screen, model.dictionary, onBack = model::pop, onSearch = model::search)
+                    EntryScreen(screen, model.dictionary, onBack = model::pop, onSearch = model::search, onOpenKanji = model::openKanji)
+                }
+                is KanjiState -> key(screen) {
+                    KanjiScreen(screen, model.dictionary, onBack = model::pop, onOpenKanji = model::openKanji)
                 }
             }
         }

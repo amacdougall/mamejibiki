@@ -21,13 +21,16 @@ object Kana {
         for (c in text) append(if (c in 'ァ'..'ヶ') c - 0x60 else c)
     }
 
+    /** A hiragana character without its dakuten or handakuten (が → か, ぱ → は); anything else unchanged. */
+    fun unvoiced(c: Char): Char = VOICED.indexOf(c).let { if (it >= 0) PLAIN[it] else c }
+
     /** The exact-match key: katakana folded to hiragana. */
     fun searchKey(text: String): String = toHiragana(text)
 
     /** The fuzzy reading key: hiragana, voicing removed, long-vowel extensions collapsed. */
     fun fuzzyKey(reading: String): String = buildString {
         for (raw in toHiragana(reading)) {
-            val c = VOICED.indexOf(raw).let { if (it >= 0) PLAIN[it] else raw }
+            val c = unvoiced(raw)
             val previous = lastOrNull()?.let { vowels[it] }
             if (c == 'ー') continue
             if (c == 'う' && (previous == 'o' || previous == 'u')) continue

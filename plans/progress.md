@@ -17,15 +17,15 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 2 | Deinflection (+ "past, negative" label) | ✅ | The user tried conjugated words on the phone. |
 | 2 | Result rows | 🟡 | Done: forms with match highlight and prefix-remainder shade, rare forms greyed, common/する badges, numbered senses, pitch accent on readings, tap to open. Missing: collapsible senses (rows currently clip at 2 lines). |
 | 2 | Long-press menu (Copy, Send to AnkiDroid) | ✅ | |
-| 3 | Entry page header and tabs | ✅ | The Kanji tab appears under the spec's condition but shows a "coming soon" placeholder. |
+| 3 | Entry page header and tabs | ✅ | |
 | 4 | Word tab | ✅ | Headword, other forms, readings with all pitch patterns, senses grouped by part of speech under Japanese label headers (する folded into 他動詞（する）), numbered senses with their own labels, notes and tappable See also / Antonym links. |
-| 5 | Kanji tab, kanji pages, practice canvas | ⬜ | The data is ready (§9 kanji half). Next: part 2 of the task below. |
+| 5 | Kanji tab, kanji pages, practice canvas | 🟡 | Done: the Kanji tab, kanji pages, header with reading highlight, component tree, Contained in with "More". Missing: the practice area (part 3 below). |
 | 6 | Forms tab and conjugation engine | ✅ | `conjugation/` (`architecture.md` §5). Unit tests check the 引く and 高い tables cell by cell, plus each class's distinctive cells. Checked on the device: 引く, 食べる, 来る, 勉強, 高い, いい. |
 | 7 | Pitch accent rendering | ✅ | `pitch/Pitch.kt` (parsing, unit-tested) and `ui/PitchText.kt` (drawing). |
 | 8 | Send to AnkiDroid | ✅ | Fields checked against golden vectors from anki-scripts' code. On the device: the permission prompt, adding a note (槍, checked by the user in AnkiDroid and desktop Anki), and the duplicate path (食べる). |
 | 9 | Database: words half | ✅ | JMdict entries, Japanese and English search keys, JPDB frequency, Wadoku pitch, JmdictFurigana, tag descriptions. `pipeline/README.md`. |
 | 9 | Japanese grammar-label table | ✅ | `pipeline/grammar_labels.tsv` → `tags.label_ja`, covering all 266 JMdict codes. The Anki Notes field's combining rules (§8) are separate and not built yet. |
-| 9 | Database: kanji half | ✅ | `kanji` (KANJIDIC2 + JLPT N levels), `kanji_vg` (strokes and component trees), `kanji_parts` (reverse index). `pipeline/README.md`. Not used by the app yet. |
+| 9 | Database: kanji half | ✅ | `kanji` (KANJIDIC2 + JLPT N levels), `kanji_vg` (strokes and component trees), `kanji_parts` (reverse index). `pipeline/README.md`. |
 
 ## Next task: kanji data, Kanji tab, kanji pages and practice canvas
 
@@ -55,14 +55,17 @@ Done. The bullets below describe what was built.
 - **Checks against the built database:** `kanji_parts` for 昜 starts 場 傷 陽 揚 湯 腸; 阜 lists kanji built with ⻖; every jōyō kanji has a `kanji_vg` row.
 - Update `pipeline/README.md` (sources table, schema notes).
 
-### 2. Kanji tab and kanji page
+### 2. Kanji tab and kanji page ✅
 
-- **Data:** `data/Kanji.kt` holds the models (`Kanji`, `KanjiTree`) and JSON parsing. Add to `Dictionary`: `kanji(chars)`, which returns rows for many characters in one query (the tree's nodes need them too), `kanjiVg(char)` and `containedIn(char)`.
-- **Pure Kotlin, unit-tested** (`kanji/` package):
+Done. The bullets below describe what was built.
+
+
+- **Data:** `data/Kanji.kt` holds the models (`KanjiInfo`, `KanjiNode`, `KanjiVg`). `Dictionary` has `kanji(literals)`, which returns rows for many characters in one query (the tree's nodes need them too), `kanjiVg(literal)`, `containedIn(component)` and `furigana(form, reading)`.
+- **Pure Kotlin, unit-tested** (`kanji/WordKanji.kt`, `WordKanjiTest`):
   - the Kanji tab's character order (UI spec §5 examples: 憂鬱 → 憂 鬱 幽 悒; 懸ける → 懸 掛), by code point and without 々;
-  - the reading-highlight matcher. Test cases: 掛ける/かける → か.ける only; 憂鬱 → ユウ and ウツ; 本棚/ほんだな → 棚 たな (rendaku); 学校/がっこう → ガク (gemination); 今日/きょう → nothing.
-- **UI:** `ui/KanjiBlock.kt`, a shared block with the header row, a Practice button placeholder until part 3, the component tree and Contained in. The Kanji tab is a column of these blocks. `KanjiState` + `ui/KanjiScreen.kt` make the kanji page (top bar: ← and the kanji), wired in as `architecture.md` §2 describes. Tree nodes and Contained in kanji push a kanji page. The "More" expansion lives in the screen's state object, so back restores it.
-- **Device check (screenshots):** adb can type English, so reach entries through English searches: "sunshine" → 陽光 (陽's tree and highlight), "depression" → 憂鬱 (four kanji), "hang" → 掛ける (か.ける highlighted). Then tap through: 陽 → 昜 → Contained in → 場, and back. Also tap ⻖ (shows 阜's meaning) and open a component without KANJIDIC2 data.
+  - the reading-highlight matcher. Test cases: 掛ける → か.ける only, 掛け → か.け, 掛かり → か.かり, 心掛け → か.け and -が.け; 憂鬱 → ユウ and ウツ; 本棚 → たな and -だな (rendaku); 学校 → ガク and 出発 → ハツ (gemination, handakuten); 今日/きょう → nothing.
+- **UI:** `ui/KanjiBlock.kt`, a shared block with the header row, the component tree and Contained in (the Practice button comes in part 3). The Kanji tab is a column of these blocks. `KanjiState` + `ui/KanjiScreen.kt` make the kanji page (top bar: ← and the kanji), wired in as `architecture.md` §2 describes. Tree nodes and Contained in kanji push a kanji page. The "More" expansion lives in the screen's state object, so back restores it.
+- **Device check (screenshots):** "sunshine" → 陽光 (陽's tree, ヨウ and コウ highlighted), tapping through 陽 → 昜 → 日 → "More", and back to the entry on its Kanji tab; ⻖ (borrows 阜's meaning); "hang" → 下げる (さ.げる highlighted, not さ.がる); "depression" → 憂鬱 (憂 鬱 幽 … with ユウ and ウツ); dark mode.
 
 ### 3. Practice canvas
 
@@ -129,3 +132,8 @@ One entry per work session, newest last.
 - Planned the kanji task (Next task above) after checking the datasets. Decisions recorded in UI spec §5 and §9: JLPT N levels come from kanji-data (KANJIDIC2's JLPT field holds the pre-2010 levels), the header's stroke/JLPT/grade line, the reading-highlight matching rules (single-kanji segments only, rendaku and gemination), the KUN affix filter, the component tree rules (element-less, `CDP-…` and IDS groups promote their children; split parts merge; variants borrow their original's meaning), and Contained in (any depth, variants count for their originals, first 30 then "More").
 - Built part 1: `lib/kanjidic.rb`, `lib/kanjivg.rb`, three new tables, schema version 3 and `test/kanjivg_test.rb`. Checked against the built database: 陽's tree matches the research doc, 昜 → 場 傷 陽 揚 湯 腸 …, 阜 → 院 際 防 限 …, and all 2,136 jōyō kanji have strokes. KanjiVG's stroke count differs from KANJIDIC2 on nine jōyō kanji (Known issues).
 - The app installs and searches normally with the new database. It doesn't read the kanji tables yet.
+
+### 2026-10-26, session 6: Kanji tab and kanji pages
+- Built part 2 of the kanji task: `data/Kanji.kt`, `kanji/WordKanji.kt` (+ `WordKanjiTest`), `ui/KanjiBlock.kt`, `ui/KanjiScreen.kt`, and the new `Dictionary` methods. The Kanji tab replaces its placeholder.
+- Decisions recorded in UI spec §5: each kanji's highlight comes from the first form containing it (so 幽 in 幽鬱 is highlighted too); KUN matching prefers the longest fitting okurigana; a variant's kanji page borrows its original's readings and meanings but not its JLPT level or grade.
+- Checked on the device (see part 2's device check). The user drilled down from 海外 to 𠂉 (a component with no KANJIDIC2 entry) and checked 叱. A kanji outside the BMP (e.g. 𠮟, U+20B9F) is covered by `WordKanjiTest` but hasn't been seen on the device.

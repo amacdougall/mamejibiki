@@ -13,13 +13,16 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `MainActivity.kt` | Creates `AppModel`, then sets the Compose content to `App(model)`. |
 | `ui/App.kt` | `AppModel` (the back stack, the `Dictionary`, the snackbar and Send to AnkiDroid), the `Screen` interface, and `App()`, which shows the top of the stack and handles system back. |
 | `ui/SearchScreen.kt` | `SearchState` and the search screen: field, live search, result rows. |
-| `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Kanji is a placeholder. |
+| `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Loads the Kanji tab's blocks the first time the tab is shown. |
 | `ui/WordTab.kt` | The Word tab (UI spec §4). |
 | `ui/FormsTab.kt` | The Forms tab (UI spec §6), drawing `EntryState.formsTables`. |
+| `ui/KanjiBlock.kt` | `KanjiBlockState` (one loaded kanji block, with its "More" flag) and the kanji display container (UI spec §5): header, component tree, Contained in. Shared by the Kanji tab and the kanji page. |
+| `ui/KanjiScreen.kt` | `KanjiState` and the standalone kanji page. |
 | `ui/PitchText.kt` | `PitchText`, a `Text` with pitch accent overlines drawn over chosen character ranges. |
 | `ui/Theme.kt`, `ui/Icons.kt` | Material 3 theme with Japanese-locale typography; icons missing from material-icons-core. |
 | `data/DictionaryDatabase.kt` | Copies the SQLite asset into app storage when its version stamp changes, and opens it read-only. |
-| `data/Dictionary.kt` | The only way screens read the database: search, per-reading pitch lookup, tag descriptions and Japanese labels. |
+| `data/Dictionary.kt` | The only way screens read the database: search, per-reading pitch lookup, tag descriptions and Japanese labels, kanji data, KanjiVG trees and strokes, Contained in, furigana. |
+| `data/Kanji.kt` | The kanji JSON models: `KanjiInfo` (KANJIDIC2), `KanjiNode` (component tree), `KanjiVg`. |
 | `data/Entry.kt` | The entry JSON model (`Entry`, `KanjiForm`, `KanaForm`, `Sense`), `FormRef`, and the headword rule (UI spec §2). |
 | `search/Search.kt` | The ranked search tiers (`Tier`) over `jp_keys` and `en_keys`. |
 | `search/Kana.kt`, `search/English.kt` | Query normalization, identical to `pipeline/lib/kana.rb` and `english.rb`. |
@@ -29,6 +32,7 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `ui/SendToAnki.kt` | The runtime permission flow in front of `AppModel.sendToAnki`. |
 | `conjugation/Conjugation.kt` | The conjugation engine: the suffix rules, forward conjugation, and the Forms tab row definitions. |
 | `conjugation/Deinflector.kt` | The same rules run in reverse for deinflection search, and the English result labels. |
+| `kanji/WordKanji.kt` | The Kanji tab's kanji order and the reading-highlight matcher (UI spec §5). Pure Kotlin. |
 
 Unit tests live in `app/src/test/`. They're plain JVM tests and can't use Android classes such as `SQLiteDatabase`.
 
@@ -37,7 +41,7 @@ Unit tests live in `app/src/test/`. They're plain JVM tests and can't use Androi
 - **The back stack** is `AppModel.stack`, a list of `Screen` objects. `push` adds one, and `pop` removes one (system back and the top-bar ← both call it). On the root screen, back isn't intercepted, so Android closes the app.
 - **Each screen is a state object** (`SearchState`, `EntryState`) that holds everything the screen shows: query, results, `LazyListState`, selected tab, `ScrollState`s, loaded data. Composables read and write that object instead of using `remember`, so returning to a screen restores it exactly.
 - **`App()` wraps each screen in `key(screen)`,** so `remember`ed helpers such as `FocusRequester` belong to one history entry.
-- **Adding a new kind of screen** (e.g. the kanji page) takes three steps: a class implementing `Screen` that holds its state, a composable that takes it, and a branch in `App()`'s `when`. Then add an `AppModel` method that pushes it.
+- **Adding a new kind of screen** takes three steps: a class implementing `Screen` that holds its state, a composable that takes it, and a branch in `App()`'s `when`. Then add an `AppModel` method that pushes it.
 - **Lifetime:** the stack lives in a ViewModel, so it survives configuration changes but not process death.
 
 ## 3. Database access and threading
