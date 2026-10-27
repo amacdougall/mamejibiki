@@ -109,3 +109,6 @@ One entry per work session, newest last.
 - Built the `*` wildcard (UI spec §2 Lookup behaviour): trailing `*`s fall back to the normal search; a leading or inner `*` runs a pattern search over plain keys. `FormMatch.highlight` is now a list of ranges, so the highlight covers the query's literal text wherever it sits. The empty-state help mentions `*`, and the kanji block's "See more" searches `*<kanji>*`.
 - `pipeline/query.rb` runs the pattern search too: `*食` → 食, 夕食, 朝食, 昼食…; `食*会` → 食事会 first. It no longer treats a query with no word characters (`**`) as an English search matching everything.
 - Checked on the device: "See more" under 食 on 食事's Kanji tab searched `*食*` (100 results in 63 ms), with 食 highlighted in 夕食 and 食っ付く. The empty-state help shows the `*` line. Japanese `*` queries typed on the keyboard haven't been tried yet (adb can't type Japanese).
+
+### 2026-10-26, session 10 (continued): launcher icon
+- Added an adaptive launcher icon (`res/mipmap-anydpi/ic_launcher.xml` and three vector drawables in `res/drawable/`): a tilted red book with a cream label and a yellow ribbon on navy, plus a monochrome layer for themed icons. Checked on the device's app info page.
