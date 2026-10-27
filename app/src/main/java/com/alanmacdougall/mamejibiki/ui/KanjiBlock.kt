@@ -66,6 +66,8 @@ class KanjiBlockState(
 ) {
     var showAllContainedIn by mutableStateOf(false)
     var practiceOpen by mutableStateOf(false)
+    /** Entry ids of Entries rows whose senses are expanded. */
+    var expandedEntries by mutableStateOf(emptySet<Long>())
 
     companion object {
         /**
@@ -181,7 +183,13 @@ fun KanjiBlock(
             Section("Entries") {
                 Column {
                     for (result in state.entries) {
-                        ResultRowContent(result, Modifier.clickable { onOpenEntry(result) }, horizontalPadding = 0.dp)
+                        ResultRowContent(
+                            result,
+                            expanded = result.id in state.expandedEntries,
+                            onToggle = { state.expandedEntries = state.expandedEntries.toggle(result.id) },
+                            Modifier.clickable { onOpenEntry(result) },
+                            horizontalPadding = 0.dp,
+                        )
                     }
                 }
                 TextButton(onClick = { onSearch(state.literal) }) { Text("See more") }

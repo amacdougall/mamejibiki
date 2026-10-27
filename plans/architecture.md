@@ -12,7 +12,7 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 |---|---|
 | `MainActivity.kt` | Creates `AppModel`, then sets the Compose content to `App(model)`. |
 | `ui/App.kt` | `AppModel` (the back stack, the `Dictionary`, the snackbar and Send to AnkiDroid), the `Screen` interface, and `App()`, which shows the top of the stack and handles system back. |
-| `ui/SearchScreen.kt` | `SearchState` and the search screen: field, live search, result rows. |
+| `ui/SearchScreen.kt` | `SearchState` and the search screen: field, live search, result rows. `ResultRowContent` draws a row's forms, badges and collapsible senses; the caller holds the expanded flag (`SearchState.expanded`, `KanjiBlockState.expandedEntries`). |
 | `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Loads the Kanji tab's blocks the first time the tab is shown. |
 | `ui/WordTab.kt` | The Word tab (UI spec §4). |
 | `ui/FormsTab.kt` | The Forms tab (UI spec §6), drawing `EntryState.formsTables`. |

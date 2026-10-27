@@ -6,6 +6,7 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,13 +15,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -39,10 +44,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -73,6 +80,8 @@ class SearchState(initialQuery: String) : Screen {
     /** The query [results] belong to, so returning to this screen doesn't search again. */
     var resultsQuery: String? = null
     val listState = LazyListState()
+    /** Entry ids of rows whose senses are expanded. Cleared by each new search. */
+    var expanded by mutableStateOf(emptySet<Long>())
     /**
      * A search pushed by a See also link first shows its results with the
      * keyboard down. Every other time the screen is shown, the field is focused.
@@ -109,6 +118,7 @@ fun SearchScreen(
         val started = System.nanoTime()
         state.results = withContext(Dispatchers.IO) { d.search(query) }
         state.resultsQuery = query
+        state.expanded = emptySet()
         Log.i("Search", "'$query' → ${state.results.size} results in ${(System.nanoTime() - started) / 1_000_000} ms")
         state.listState.scrollToItem(0)
     }
@@ -157,6 +167,8 @@ fun SearchScreen(
                 items(results, key = { it.id }) { result ->
                     ResultRow(
                         result,
+                        expanded = result.id in state.expanded,
+                        onToggle = { state.expanded = state.expanded.toggle(result.id) },
                         onClick = {
                             keyboard?.hide()
                             onOpen(result)
@@ -185,10 +197,22 @@ private fun EmptyHelp() {
 /** A result row. Tap opens the entry; long-press shows Copy and Send to AnkiDroid (UI spec §2). */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ResultRow(result: SearchResult, onClick: () -> Unit, onCopy: () -> Unit, onSend: () -> Unit) {
+private fun ResultRow(
+    result: SearchResult,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    onClick: () -> Unit,
+    onCopy: () -> Unit,
+    onSend: () -> Unit,
+) {
     var menu by remember { mutableStateOf(false) }
     Box {
-        ResultRowContent(result, Modifier.combinedClickable(onClick = onClick, onLongClick = { menu = true }))
+        ResultRowContent(
+            result,
+            expanded,
+            onToggle,
+            Modifier.combinedClickable(onClick = onClick, onLongClick = { menu = true }),
+        )
         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, offset = DpOffset(16.dp, 0.dp)) {
             DropdownMenuItem(text = { Text("Copy") }, onClick = {
                 menu = false
@@ -202,9 +226,19 @@ private fun ResultRow(result: SearchResult, onClick: () -> Unit, onCopy: () -> U
     }
 }
 
-/** A result row's forms, badges and senses. Also used for a kanji block's entries. */
+/**
+ * A result row's forms, badges and senses. Also used for a kanji block's entries.
+ * Collapsed, the senses run together on two lines; expanded, each sense gets its
+ * own line. The chevron that toggles [expanded] shows only when there's more to see.
+ */
 @Composable
-fun ResultRowContent(result: SearchResult, modifier: Modifier, horizontalPadding: Dp = 16.dp) {
+fun ResultRowContent(
+    result: SearchResult,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier,
+    horizontalPadding: Dp = 16.dp,
+) {
     Column(
         modifier
             .fillMaxWidth()
@@ -225,15 +259,51 @@ fun ResultRowContent(result: SearchResult, modifier: Modifier, horizontalPadding
         result.inflection?.let {
             Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
         }
-        Text(
-            glossLine(result),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
+        var overflows by remember(result.id) { mutableStateOf(false) }
+        val glossStyle = MaterialTheme.typography.bodyMedium
+        val glossColor = MaterialTheme.colorScheme.onSurfaceVariant
+        // The chevron sits beside the collapsed text's second line in both states,
+        // so tapping the same spot twice expands then collapses.
+        val chevronTop = with(LocalDensity.current) { (glossStyle.lineHeight * 2).toDp() - CHEVRON_SIZE }.coerceAtLeast(0.dp)
+        Row(verticalAlignment = Alignment.Top) {
+            if (expanded) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    for (line in senseLines(result)) Text(line, style = glossStyle, color = glossColor)
+                }
+            } else {
+                Text(
+                    glossLine(result),
+                    Modifier.weight(1f),
+                    style = glossStyle,
+                    color = glossColor,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    onTextLayout = { if (it.hasVisualOverflow) overflows = true },
+                )
+            }
+            if (expanded || overflows) {
+                Box(
+                    Modifier
+                        .padding(start = 4.dp, top = chevronTop)
+                        .size(CHEVRON_SIZE)
+                        .clip(CircleShape)
+                        .clickable(onClick = onToggle),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = if (expanded) "Collapse senses" else "Expand senses",
+                        tint = glossColor,
+                    )
+                }
+            }
+        }
     }
 }
+
+private val CHEVRON_SIZE = 36.dp
+
+fun Set<Long>.toggle(id: Long): Set<Long> = if (id in this) this - id else this + id
 
 @Composable
 private fun Badge(label: String) {
@@ -282,10 +352,13 @@ private fun formsLine(result: SearchResult): Pair<AnnotatedString, List<PitchLin
     return text to pitch
 }
 
-private fun glossLine(result: SearchResult): String {
+private fun glossLine(result: SearchResult): String = senseLines(result).joinToString("  ")
+
+/** Each sense's glosses, comma-joined, numbered when there's more than one sense. */
+private fun senseLines(result: SearchResult): List<String> {
     val senses = result.entry.sense
-    if (senses.size == 1) return senses[0].gloss.joinToString(", ")
-    return senses.mapIndexed { i, s -> "${i + 1}. ${s.gloss.joinToString(", ")}" }.joinToString("  ")
+    if (senses.size == 1) return listOf(senses[0].gloss.joinToString(", "))
+    return senses.mapIndexed { i, s -> "${i + 1}. ${s.gloss.joinToString(", ")}" }
 }
 
 private fun copyText(context: Context, text: String) {

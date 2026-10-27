@@ -16,7 +16,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 2 | Prefix, `?` wildcard, fuzzy, English | ✅ | `?` and `？` are both wildcards. Whole-word fuzzy matches rank right after exact matches. English search uses three tiers and ranks first-sense matches higher. |
 | 2 | `*` wildcard (`A*`, `*A`, `*A*`) | ⬜ | Specified in §2 Lookup behaviour, not built. Needs: query parsing, the leading-`*` tier in `search/Search.kt` (and `pipeline/query.rb`), a match start offset in `FormMatch` for the highlight, a phone timing of `*A*` (about 0.1 s on the Mac for `*食*`), the empty-state help text, and switching the kanji block's "See more" from the bare kanji to `*<kanji>*` (§5). |
 | 2 | Deinflection (+ "past, negative" label) | ✅ | The user tried conjugated words on the phone. |
-| 2 | Result rows | 🟡 | Done: forms with match highlight and prefix-remainder shade, rare forms greyed, common/する badges, numbered senses, pitch accent on readings, tap to open. Missing: collapsible senses (rows currently clip at 2 lines). |
+| 2 | Result rows | ✅ | Forms with match highlight and prefix-remainder shade, rare forms greyed, common/する badges, numbered collapsible senses, pitch accent on readings, tap to open. |
 | 2 | Long-press menu (Copy, Send to AnkiDroid) | ✅ | |
 | 3 | Entry page header and tabs | ✅ | |
 | 4 | Word tab | ✅ | Headword, other forms, readings with all pitch patterns, senses grouped by part of speech under Japanese label headers (する folded into 他動詞（する）), numbered senses with their own labels, notes and tappable See also / Antonym links. |
@@ -28,14 +28,13 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 9 | Japanese grammar-label table | ✅ | `pipeline/grammar_labels.tsv` → `tags.label_ja`, covering all 266 JMdict codes. The Anki Notes field's combining rules (§8) are separate and not built yet. |
 | 9 | Database: kanji half | ✅ | `kanji` (KANJIDIC2 + JLPT N levels), `kanji_vg` (strokes and component trees), `kanji_parts` (reverse index). `pipeline/README.md`. |
 
-## Next task: collapsible senses on result rows
+## Next task: the `*` wildcard
 
-Spec: §2 Result rows. Result rows currently clip their senses at 2 lines. Plan this task (read §2, decide the collapse control and what the collapsed row shows, and record the decisions in the UI spec) before building it.
+Spec: §2 Lookup behaviour, and the kanji block's "See more" searching `*<kanji>*` (§5). The status table's `*` row lists the parts.
 
 ## Later tasks
 
-In order, after the next task:
-1. The `*` wildcard (UI spec §2 Lookup behaviour), including the kanji block's "See more" searching `*<kanji>*` (§5).
+None queued beyond the next task.
 
 ## Open questions
 
@@ -101,3 +100,7 @@ One entry per work session, newest last.
 - Slowed the accepted-stroke morph to 500 ms (the user's request).
 - Added the kanji block's Entries section (UI spec §5 item 4): `Dictionary.entriesWith`, a `GLOB` over written-form keys ordered by rank. It takes about 0.1 s on the Mac for 食.
 - Checked on the device: 食 on 食事's Kanji tab shows 食べる, 食う, 食事. "See more" opens a search for 食, back returns to the Kanji tab, and tapping 食べる opens its entry.
+
+### 2026-10-26, session 9: collapsible senses
+- Made result rows' senses collapsible (UI spec §2 Result rows): two lines collapsed, one sense per line expanded, toggled by a chevron that shows only when there's more to see. Kanji block Entries rows work the same way.
+- Checked on the device with "run": 走る expanded to its 8 senses, opening the entry and going back kept it expanded, and collapsing restored the two-line row. The chevron keeps its place when the row expands, so two taps on the same spot expand and collapse it.
