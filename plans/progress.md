@@ -29,7 +29,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 
 ## Next task: kanji data, Kanji tab, kanji pages and practice canvas
 
-Spec: §5 (Kanji tab, kanji block, kanji page) and §9 (data sources and tables). Build in this order. Each part is its own session and ends with a device check.
+Spec: §5 (Kanji tab, kanji block, kanji page) and §9 (data sources and tables). Build in this order. Each part is its own session and ends with a device check. Parts 1 and 2 are done. **Start with part 3.**
 
 ### 1. Pipeline: kanji tables ✅
 
@@ -67,7 +67,7 @@ Done. The bullets below describe what was built.
 - **UI:** `ui/KanjiBlock.kt`, a shared block with the header row, the component tree and Contained in (the Practice button comes in part 3). The Kanji tab is a column of these blocks. `KanjiState` + `ui/KanjiScreen.kt` make the kanji page (top bar: ← and the kanji), wired in as `architecture.md` §2 describes. Tree nodes and Contained in kanji push a kanji page. The "More" expansion lives in the screen's state object, so back restores it.
 - **Device check (screenshots):** "sunshine" → 陽光 (陽's tree, ヨウ and コウ highlighted), tapping through 陽 → 昜 → 日 → "More", and back to the entry on its Kanji tab; ⻖ (borrows 阜's meaning); "hang" → 下げる (さ.げる highlighted, not さ.がる); "depression" → 憂鬱 (憂 鬱 幽 … with ユウ and ウツ); dark mode.
 
-### 3. Practice canvas
+### 3. Practice canvas (next)
 
 - **Pure Kotlin, unit-tested** (`practice/` package):
   - an SVG path parser for the commands KanjiVG uses: `M m C c S s` only (checked over the whole release). It flattens each stroke to a polyline in the 109-unit space;
@@ -136,4 +136,4 @@ One entry per work session, newest last.
 ### 2026-10-26, session 6: Kanji tab and kanji pages
 - Built part 2 of the kanji task: `data/Kanji.kt`, `kanji/WordKanji.kt` (+ `WordKanjiTest`), `ui/KanjiBlock.kt`, `ui/KanjiScreen.kt`, and the new `Dictionary` methods. The Kanji tab replaces its placeholder.
 - Decisions recorded in UI spec §5: each kanji's highlight comes from the first form containing it (so 幽 in 幽鬱 is highlighted too); KUN matching prefers the longest fitting okurigana; a variant's kanji page borrows its original's readings and meanings but not its JLPT level or grade.
-- Checked on the device (see part 2's device check). The user drilled down from 海外 to 𠂉 (a component with no KANJIDIC2 entry) and checked 叱. A kanji outside the BMP (e.g. 𠮟, U+20B9F) is covered by `WordKanjiTest` but hasn't been seen on the device.
+- Checked on the device (see part 2's device check). The user drilled down from 海外 to 𠂉 (a component with no KANJIDIC2 entry) and checked 叱. Kanji outside the BMP (e.g. 𠮟, U+20B9F) are covered by `WordKanjiTest`. The user decided a device check isn't needed.
