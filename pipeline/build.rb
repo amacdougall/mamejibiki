@@ -4,7 +4,7 @@
 # Builds the app's dictionary database from the source datasets.
 #
 #   bundle exec ruby build.rb             # fetch missing sources, build, install into the app
-#   bundle exec ruby build.rb --refresh   # also re-fetch the latest JMdict and JmdictFurigana
+#   bundle exec ruby build.rb --refresh   # also re-fetch the latest JMdict, KANJIDIC2, KanjiVG and JmdictFurigana
 
 require 'fileutils'
 require 'json'
@@ -13,8 +13,10 @@ require 'time'
 require_relative 'lib/sources'
 require_relative 'lib/kana'
 require_relative 'lib/english'
+require_relative 'lib/kanjidic'
+require_relative 'lib/kanjivg'
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 BUILD_PATH = File.join(Sources::DATA_DIR, 'mamejibiki.sqlite')
 INSTALL_PATH = File.expand_path('../app/src/main/assets/mamejibiki.sqlite', __dir__)
 # The app re-copies the database out of the APK whenever this file's contents change.
@@ -204,6 +206,43 @@ def import_furigana(db)
   rows.size
 end
 
+# --- Kanji -------------------------------------------------------------------
+
+def import_kanji(db)
+  kanji = Kanjidic.load(Sources::KANJIDIC_PATH, Sources::KANJI_DATA_PATH)
+  insert = db.prepare('INSERT INTO kanji VALUES (?, ?)')
+  kanji.each { |literal, data| insert.execute(literal, JSON.generate(data)) }
+
+  insert_vg = db.prepare('INSERT INTO kanji_vg VALUES (?, ?, ?)')
+  containing = Hash.new { |h, k| h[k] = {} }
+  stroke_counts = {}
+  count = 0
+  File.open(Sources::KANJIVG_PATH) do |io|
+    KanjiVG.each_character(io) do |c|
+      insert_vg.execute(c.literal, JSON.generate(c.strokes), JSON.generate(c.tree))
+      count += 1
+      next unless has_kanji?(c.literal)
+
+      stroke_counts[c.literal] = c.strokes.size
+      KanjiVG.components(c.tree).flatten.compact.each do |component|
+        containing[component][c.literal] = true unless component == c.literal
+      end
+    end
+  end
+
+  insert_part = db.prepare('INSERT INTO kanji_parts VALUES (?, ?, ?)')
+  containing.each do |component, literals|
+    sorted = literals.keys.sort_by do |k|
+      data = kanji[k] || {}
+      [data['freq'] || Float::INFINITY, data['grade'] || Float::INFINITY,
+       data['strokes'] || stroke_counts[k], k.ord]
+    end
+    sorted.each_with_index { |k, i| insert_part.execute(component, i, k) }
+  end
+
+  [kanji.size, count, containing.size]
+end
+
 # --- Main --------------------------------------------------------------------
 
 versions = step('Fetching sources') { Sources.fetch_all!(refresh: ARGV.include?('--refresh')) }
@@ -221,6 +260,8 @@ db.transaction do
   step('Importing frequency') { import_frequency(db, ranks) }
   step('Importing Wadoku pitch') { import_pitch(db) }
   step('Importing JmdictFurigana') { import_furigana(db) }
+  kanji, vg, components = step('Importing KANJIDIC2 and KanjiVG') { import_kanji(db) }
+  puts "  #{kanji} kanji, #{vg} KanjiVG characters, #{components} components"
 
   meta = { 'schema_version' => SCHEMA_VERSION.to_s, 'built_at' => BUILT_AT }
   versions.each { |name, v| meta["source.#{name}"] = v }

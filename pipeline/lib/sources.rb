@@ -23,11 +23,17 @@ module Sources
   JPDB_URL = 'https://github.com/Kuuuube/yomitan-dictionaries/raw/main/dictionaries/JPDB_v2.2_Frequency_Kana_2024-10-13.zip'
   WADOKU_URL = 'https://raw.githubusercontent.com/IllDepence/anki_add_pitch_plugin/master/src/wadoku_pitchdb.csv'
   WADOKU_SHA256 = '5517407a34a54247df7941bf7f6678006fa83ac114699090d825f7783f10116c'
+  KANJI_DATA_URL = 'https://raw.githubusercontent.com/davidluzgouveia/kanji-data/00fd7079c3890f430759536f91aa5e854ec0ca4f/kanji.json'
+  KANJI_DATA_SHA256 = '561b72ea9df703c58fae0c68585812e172aaa7611d2fcee6719d55fd2dfd4fa4'
+  KANJIVG_RELEASES = 'https://api.github.com/repos/KanjiVG/kanjivg/releases/latest'
 
   JMDICT_PATH = File.join(DATA_DIR, 'jmdict-eng.json')
   FURIGANA_PATH = File.join(DATA_DIR, 'JmdictFurigana.json')
   JPDB_DIR = File.join(DATA_DIR, 'jpdb')
   WADOKU_PATH = File.join(DATA_DIR, 'wadoku_pitchdb.csv')
+  KANJIDIC_PATH = File.join(DATA_DIR, 'kanjidic2-en.json')
+  KANJIVG_PATH = File.join(DATA_DIR, 'kanjivg.xml')
+  KANJI_DATA_PATH = File.join(DATA_DIR, 'kanji-data.json')
 
   class << self
     def fetch_all!(refresh: false)
@@ -37,6 +43,9 @@ module Sources
       fetch_furigana!(versions) if refresh || !File.exist?(FURIGANA_PATH)
       fetch_jpdb!(versions) unless Dir.exist?(JPDB_DIR)
       fetch_wadoku!(versions) unless File.exist?(WADOKU_PATH)
+      fetch_kanjidic!(versions) if refresh || !File.exist?(KANJIDIC_PATH)
+      fetch_kanjivg!(versions) if refresh || !File.exist?(KANJIVG_PATH)
+      fetch_kanji_data!(versions) unless File.exist?(KANJI_DATA_PATH)
       File.write(VERSIONS_PATH, JSON.pretty_generate(versions))
       versions
     end
@@ -78,6 +87,38 @@ module Sources
       raise "Wadoku pitch DB checksum mismatch (got #{actual})" unless actual == WADOKU_SHA256
 
       versions['wadoku'] = "sha256:#{WADOKU_SHA256[0, 12]}"
+    end
+
+    def fetch_kanjidic!(versions)
+      release = latest_release(JMDICT_RELEASES)
+      asset = release['assets'].find { |a| a['name'].match?(/\Akanjidic2-en-\d.*\.json\.tgz\z/) }
+      tgz = File.join(DATA_DIR, asset['name'])
+      download(asset['browser_download_url'], tgz)
+      run('tar', '-xzf', tgz, '-C', DATA_DIR)
+      File.delete(tgz)
+      extracted = Dir.glob(File.join(DATA_DIR, 'kanjidic2-en-*.json'))
+      raise "Expected one extracted KANJIDIC2 file, found #{extracted.inspect}" unless extracted.size == 1
+
+      FileUtils.mv(extracted.first, KANJIDIC_PATH)
+      versions['kanjidic2'] = release['tag_name']
+    end
+
+    def fetch_kanjivg!(versions)
+      release = latest_release(KANJIVG_RELEASES)
+      asset = release['assets'].find { |a| a['name'].match?(/\Akanjivg-\d+\.xml\.gz\z/) }
+      gz = File.join(DATA_DIR, asset['name'])
+      download(asset['browser_download_url'], gz)
+      run('gunzip', '-f', gz)
+      FileUtils.mv(gz.delete_suffix('.gz'), KANJIVG_PATH)
+      versions['kanjivg'] = release['tag_name']
+    end
+
+    def fetch_kanji_data!(versions)
+      download(KANJI_DATA_URL, KANJI_DATA_PATH)
+      actual = Digest::SHA256.file(KANJI_DATA_PATH).hexdigest
+      raise "kanji-data checksum mismatch (got #{actual})" unless actual == KANJI_DATA_SHA256
+
+      versions['kanji_data'] = "sha256:#{KANJI_DATA_SHA256[0, 12]}"
     end
 
     def latest_release(api_url)

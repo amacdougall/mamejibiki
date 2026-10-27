@@ -76,3 +76,33 @@ CREATE TABLE tags (
   description TEXT NOT NULL,
   label_ja    TEXT NOT NULL
 ) WITHOUT ROWID;
+
+-- KANJIDIC2 kanji, one row per character. data is compact JSON:
+-- {"on": [...], "kun": [...], "meanings": [...], "strokes", "grade", "freq", "jlpt"}
+-- with empty and missing fields left out. kun keeps KANJIDIC2's "." okurigana
+-- and "-" affix markers. jlpt is the N level (1-5) from kanji-data.
+CREATE TABLE kanji (
+  literal TEXT PRIMARY KEY,
+  data    TEXT NOT NULL
+) WITHOUT ROWID;
+
+-- KanjiVG, one row per character. strokes is a JSON array of SVG path data
+-- strings in drawing order (109 x 109 coordinate space). tree is the component
+-- tree: nested {"e": element, "o": kvg:original, "phon": true, "c": [children]}
+-- nodes, missing keys meaning none; the root is the character itself.
+-- A rowid table: its rows are too large to store well WITHOUT ROWID.
+CREATE TABLE kanji_vg (
+  literal TEXT PRIMARY KEY,
+  strokes TEXT NOT NULL,
+  tree    TEXT NOT NULL
+);
+
+-- Reverse component index: the kanji whose KanjiVG tree contains component
+-- at any depth, as an element or as a variant's original. ord is the
+-- Contained in order: KANJIDIC2 frequency, then grade, then stroke count.
+CREATE TABLE kanji_parts (
+  component TEXT NOT NULL,
+  ord       INTEGER NOT NULL,
+  kanji     TEXT NOT NULL,
+  PRIMARY KEY (component, ord)
+) WITHOUT ROWID;
