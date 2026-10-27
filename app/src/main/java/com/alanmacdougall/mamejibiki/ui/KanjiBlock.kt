@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,6 +67,8 @@ class KanjiBlockState(
 ) {
     var showAllContainedIn by mutableStateOf(false)
     var practiceOpen by mutableStateOf(false)
+    /** Tapping the kanji tile hides everything below the header, from the Practice button on. */
+    var collapsed by mutableStateOf(false)
     /** Entry ids of Entries rows whose senses are expanded. */
     var expandedEntries by mutableStateOf(emptySet<Long>())
 
@@ -116,6 +119,7 @@ fun KanjiBlocks(
 /**
  * A kanji block: header row, practice area, component breakdown, entries and
  * Contained in. Taps open kanji pages and entries; "See more" searches for the kanji.
+ * Tapping the kanji tile collapses the block to its header.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -129,8 +133,13 @@ fun KanjiBlock(
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                val tile = RoundedCornerShape(8.dp)
                 Box(
-                    Modifier.size(104.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)),
+                    Modifier
+                        .size(104.dp)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, tile)
+                        .clip(tile)
+                        .clickable { state.collapsed = !state.collapsed },
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(state.literal, style = MaterialTheme.typography.displayLarge, fontSize = 72.sp)
@@ -159,7 +168,7 @@ fun KanjiBlock(
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
-            state.strokes?.let { strokes ->
+            state.strokes?.takeIf { !state.collapsed }?.let { strokes ->
                 FilledTonalButton(onClick = { state.practiceOpen = !state.practiceOpen }) {
                     Text("Practice")
                     Icon(
@@ -171,6 +180,7 @@ fun KanjiBlock(
                 if (state.practiceOpen) PracticeCanvas(strokes, Modifier.fillMaxWidth())
             }
         }
+        if (state.collapsed) return@Column
 
         val components = state.tree?.c.orEmpty()
         if (components.isNotEmpty()) {

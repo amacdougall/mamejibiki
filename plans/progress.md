@@ -20,7 +20,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 2 | Long-press menu (Copy, Send to AnkiDroid) | ✅ | |
 | 3 | Entry page header and tabs | ✅ | |
 | 4 | Word tab | ✅ | Headword, other forms, readings with all pitch patterns, senses grouped by part of speech under Japanese label headers (する folded into 他動詞（する）), numbered senses with their own labels, notes and tappable See also / Antonym links. |
-| 5 | Kanji tab, kanji pages, practice canvas | ✅ | The Kanji tab, kanji pages, header with reading highlight, component tree, Entries with "See more", Contained in with "More", and the practice canvas (`practice/`, `ui/PracticeCanvas.kt`). The user uses the practice canvas by hand on the phone, and it works as intended. |
+| 5 | Kanji tab, kanji pages, practice canvas | ✅ | The Kanji tab, kanji pages, header with reading highlight, component tree, Entries with "See more", Contained in with "More", tap-the-tile collapsing, and the practice canvas (`practice/`, `ui/PracticeCanvas.kt`). The user uses the practice canvas by hand on the phone, and it works as intended. |
 | 6 | Forms tab and conjugation engine | ✅ | `conjugation/` (`architecture.md` §5). Unit tests check the 引く and 高い tables cell by cell, plus each class's distinctive cells. Checked on the device: 引く, 食べる, 来る, 勉強, 高い, いい. |
 | 7 | Pitch accent rendering | ✅ | `pitch/Pitch.kt` (parsing, unit-tested) and `ui/PitchText.kt` (drawing). |
 | 8 | Send to AnkiDroid | ✅ | Fields checked against golden vectors from anki-scripts' code. On the device: the permission prompt, adding a note (槍, checked by the user in AnkiDroid and desktop Anki), and the duplicate path (食べる). |
@@ -115,3 +115,7 @@ One entry per work session, newest last.
 ### 2026-10-27, session 11: README
 - Wrote `README.md`: screenshots (`docs/screenshots/`, taken on the device by driving the app over adb, including drawing 陽 on the practice canvas with `input motionevent`), a feature list / user's manual, and a Getting Started section for another developer's AI agent.
 - The user confirmed the practice canvas works when drawing by hand. They've been using it.
+
+### 2026-10-27, session 11 (continued): collapsing kanji blocks
+- Tapping a kanji block's tile collapses it to its header, hiding the Practice button and everything below (UI spec §5 Kanji block). The flag is `KanjiBlockState.collapsed`.
+- Checked on the device on 陽光's Kanji tab: both blocks collapse and expand, and back from a component's kanji page keeps the block's state.
