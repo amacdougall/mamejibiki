@@ -4,6 +4,7 @@
 # Development tool: runs the app's search tiers against the built database.
 #
 #   bundle exec ruby query.rb ゆううつ
+#   bundle exec ruby query.rb '*食*'
 #   bundle exec ruby query.rb 'eat'
 
 require 'json'
@@ -19,7 +20,16 @@ def glob_literal(text)
   text.gsub(/[*\[]/) { |c| "[#{c}]" }
 end
 
+# A query with a leading or inner '*' is matched as a whole pattern against
+# plain keys; trailing '*'s are dropped and the normal tiers run.
 def japanese(query)
+  query = query.tr('＊？', '*?')
+  return [] if query.match?(/\A[*?]*\z/)
+
+  plain = query.sub(/\*+\z/, '')
+  return pattern(query) if plain.include?('*')
+
+  query = plain
   key = glob_literal(Kana.search_key(query))
   fuzzy = glob_literal(Kana.fuzzy_key(query))
   tiers = [
@@ -31,8 +41,25 @@ def japanese(query)
   run(tiers, 'jp_keys', 'k.form_kind, k.form_index', '')
 end
 
+def pattern(query)
+  key = Kana.search_key(query)
+  sql = <<~SQL
+    SELECT e.id, e.common, e.rank, e.data
+    FROM jp_keys k JOIN entries e ON e.id = k.entry_id
+    WHERE k.kind = 0 AND k.key GLOB ?
+    ORDER BY k.key = ? DESC, e.common DESC, e.rank IS NULL, e.rank, length(k.key)
+    LIMIT 1000
+  SQL
+  rows = DB.execute(sql, [key.gsub('[', '[[]'), key.delete('*?')])
+  rows.uniq(&:first).first(LIMIT).map do |id, common, rank, data|
+    ['glob', id, common, rank, JSON.parse(data)]
+  end
+end
+
 def english(query)
   phrase = English.phrase_key(query)
+  return [] if phrase.empty?
+
   tiers = [
     ['exact', 'k.kind = 0 AND k.key = ?', phrase],
     ['prefix', 'k.kind = 0 AND k.key GLOB ?', "#{glob_literal(phrase)}*"],

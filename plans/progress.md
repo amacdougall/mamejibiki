@@ -14,7 +14,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 2 | Search screen layout | ✅ | The field is focused with the cursor at the end whenever the screen is shown, except a See also search's first showing. Paste and clear buttons. Empty-state help. |
 | 2 | Live search, including IME composition | ✅ | Confirmed on the device. |
 | 2 | Prefix, `?` wildcard, fuzzy, English | ✅ | `?` and `？` are both wildcards. Whole-word fuzzy matches rank right after exact matches. English search uses three tiers and ranks first-sense matches higher. |
-| 2 | `*` wildcard (`A*`, `*A`, `*A*`) | ⬜ | Specified in §2 Lookup behaviour, not built. Needs: query parsing, the leading-`*` tier in `search/Search.kt` (and `pipeline/query.rb`), a match start offset in `FormMatch` for the highlight, a phone timing of `*A*` (about 0.1 s on the Mac for `*食*`), the empty-state help text, and switching the kanji block's "See more" from the bare kanji to `*<kanji>*` (§5). |
+| 2 | `*` wildcard (`A*`, `*A`, `*A*`, `A*B`) | ✅ | `search/Wildcard.kt` (+ `WildcardTest`) and the pattern search in `search/Search.kt` and `pipeline/query.rb`. The kanji block's "See more" searches `*<kanji>*`. |
 | 2 | Deinflection (+ "past, negative" label) | ✅ | The user tried conjugated words on the phone. |
 | 2 | Result rows | ✅ | Forms with match highlight and prefix-remainder shade, rare forms greyed, common/する badges, numbered collapsible senses, pitch accent on readings, tap to open. |
 | 2 | Long-press menu (Copy, Send to AnkiDroid) | ✅ | |
@@ -28,13 +28,13 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 9 | Japanese grammar-label table | ✅ | `pipeline/grammar_labels.tsv` → `tags.label_ja`, covering all 266 JMdict codes. The Anki Notes field's combining rules (§8) are separate and not built yet. |
 | 9 | Database: kanji half | ✅ | `kanji` (KANJIDIC2 + JLPT N levels), `kanji_vg` (strokes and component trees), `kanji_parts` (reverse index). `pipeline/README.md`. |
 
-## Next task: the `*` wildcard
+## Next task
 
-Spec: §2 Lookup behaviour, and the kanji block's "See more" searching `*<kanji>*` (§5). The status table's `*` row lists the parts.
+None chosen. Everything specified is built except the settings screen (§1), which isn't needed while the AnkiDroid connection is hardcoded. Ask the user what comes next.
 
 ## Later tasks
 
-None queued beyond the next task.
+None queued.
 
 ## Open questions
 
@@ -46,7 +46,7 @@ None.
 - **History lost when Android kills the app:** the back stack lives in a ViewModel, so it survives configuration changes but not process death. Reopening the app then starts at an empty search.
 - **KanjiVG glyph shapes differ from KANJIDIC2 for a few kanji:** KanjiVG draws traditional shapes for some 2010 jōyō additions, so its stroke count is one higher for 僅 葛 謎 賭 遜 遡 餅 餌 (two-dot ⻌, older 食 radical and similar) and one lower for 牙. The header shows KANJIDIC2's count, and the practice canvas expects KanjiVG's strokes.
 - **Half-length straight strokes can pass:** the research doc §3 score lets a straight stroke drawn at about half its length through (e.g. half of 日's middle bar scores under 1, well inside "correct"). Strokes that turn, like 日's second stroke, fail when drawn halfway.
-- **Search speed only partly measured:** search timings are written to the log (`adb logcat -s Search:I`). Seen so far: a 100-result English search ("hang") takes 120–400 ms, and short Japanese searches take under 10 ms. One-character prefix searches and the first-launch database copy haven't been timed.
+- **Search speed only partly measured:** search timings are written to the log (`adb logcat -s Search:I`). Seen so far: a 100-result English search ("hang") takes 120–400 ms, short Japanese searches take under 10 ms, and `*食*` (100 results) takes 63 ms. One-character prefix searches and the first-launch database copy haven't been timed.
 
 ## Log
 
@@ -104,3 +104,8 @@ One entry per work session, newest last.
 ### 2026-10-26, session 9: collapsible senses
 - Made result rows' senses collapsible (UI spec §2 Result rows): two lines collapsed, one sense per line expanded, toggled by a chevron that shows only when there's more to see. Kanji block Entries rows work the same way.
 - Checked on the device with "run": 走る expanded to its 8 senses, opening the entry and going back kept it expanded, and collapsing restored the two-line row. The chevron keeps its place when the row expands, so two taps on the same spot expand and collapse it.
+
+### 2026-10-26, session 10: the `*` wildcard
+- Built the `*` wildcard (UI spec §2 Lookup behaviour): trailing `*`s fall back to the normal search; a leading or inner `*` runs a pattern search over plain keys. `FormMatch.highlight` is now a list of ranges, so the highlight covers the query's literal text wherever it sits. The empty-state help mentions `*`, and the kanji block's "See more" searches `*<kanji>*`.
+- `pipeline/query.rb` runs the pattern search too: `*食` → 食, 夕食, 朝食, 昼食…; `食*会` → 食事会 first. It no longer treats a query with no word characters (`**`) as an English search matching everything.
+- Checked on the device: "See more" under 食 on 食事's Kanji tab searched `*食*` (100 results in 63 ms), with 食 highlighted in 夕食 and 食っ付く. The empty-state help shows the `*` line. Japanese `*` queries typed on the keyboard haven't been tried yet (adb can't type Japanese).

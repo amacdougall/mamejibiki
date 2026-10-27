@@ -7,15 +7,16 @@ import com.alanmacdougall.mamejibiki.data.Entry
 import com.alanmacdougall.mamejibiki.data.FormRef
 import com.alanmacdougall.mamejibiki.pitch.Accent
 
-enum class Tier { EXACT, FUZZY_EXACT, DEINFLECTED, PREFIX, FUZZY, ENGLISH_EXACT, ENGLISH_PREFIX, ENGLISH_WORD }
+enum class Tier { EXACT, FUZZY_EXACT, DEINFLECTED, PREFIX, FUZZY, PATTERN, ENGLISH_EXACT, ENGLISH_PREFIX, ENGLISH_WORD }
 
 /**
  * Which written form (formKind 0, index into Entry.kanji) or reading
  * (formKind 1, index into Entry.kana) a Japanese query matched.
- * [highlightLength] is how many leading characters matched; null means the
- * whole form (fuzzy matches have no character-level alignment).
+ * [highlight] holds the character ranges the query's text matched; the rest
+ * of the form is the unmatched remainder. Null means the whole form (fuzzy
+ * matches have no character-level alignment).
  */
-data class FormMatch(val formKind: Int, val formIndex: Int, val highlightLength: Int?) {
+data class FormMatch(val formKind: Int, val formIndex: Int, val highlight: List<IntRange>?) {
     val form: FormRef get() = FormRef(formKind, formIndex)
 }
 
@@ -38,7 +39,10 @@ class Search(private val db: SQLiteDatabase) {
     fun run(rawQuery: String): List<SearchResult> {
         val query = rawQuery.trim()
         if (query.isEmpty()) return emptyList()
-        return if (Kana.hasJapanese(query)) japanese(query) else english(query)
+        if (!Kana.hasJapanese(query)) return english(query)
+        val normalized = Wildcard.normalize(query)
+        if (Wildcard.isOnlyWildcards(normalized)) return emptyList()
+        return Wildcard.plainQuery(normalized)?.let(::japanese) ?: pattern(normalized)
     }
 
     private fun japanese(query: String): List<SearchResult> {
@@ -57,11 +61,38 @@ class Search(private val db: SQLiteDatabase) {
         val seen = HashSet<Long>()
         val results = ArrayList<SearchResult>()
         val match = { tier: Tier, cursor: android.database.Cursor ->
-            FormMatch(cursor.getInt(4), cursor.getInt(5), if (tier == Tier.PREFIX) query.length else null)
+            FormMatch(cursor.getInt(4), cursor.getInt(5), if (tier == Tier.PREFIX) listOf(0 until query.length) else null)
         }
         collect(whole, "jp_keys", "k.form_kind, k.form_index", firstOrder = "", seen, results, match)
-        if ('?' !in query && '？' !in query) deinflected(Kana.searchKey(query), seen, results)
+        if ('?' !in query) deinflected(Kana.searchKey(query), seen, results)
         collect(prefix, "jp_keys", "k.form_kind, k.form_index", firstOrder = "", seen, results, match)
+        return results
+    }
+
+    /**
+     * A query with a leading or inner `*`: written forms and readings matched
+     * by GLOB, without fuzzy keys or deinflection. An exact key match ranks
+     * first, then common words, then frequency, then shorter forms.
+     */
+    private fun pattern(query: String): List<SearchResult> {
+        val key = Kana.searchKey(query)
+        val sql = """
+            SELECT e.id, e.data, k.form_kind, k.form_index, k.key
+            FROM jp_keys k JOIN entries e ON e.id = k.entry_id
+            WHERE k.kind = 0 AND k.key GLOB ?
+            ORDER BY k.key = ? DESC, e.common DESC, e.rank IS NULL, e.rank, length(k.key)
+            LIMIT $PATTERN_ROWS
+        """.trimIndent()
+        val seen = HashSet<Long>()
+        val results = ArrayList<SearchResult>()
+        db.rawQuery(sql, arrayOf(Wildcard.glob(key), Wildcard.literal(key))).use { c ->
+            while (c.moveToNext() && results.size < MAX_RESULTS) {
+                val id = c.getLong(0)
+                if (!seen.add(id)) continue
+                val match = FormMatch(c.getInt(2), c.getInt(3), Wildcard.highlight(key, c.getString(4)))
+                results += SearchResult(id, Entry.decode(c.getString(1)), Tier.PATTERN, match)
+            }
+        }
         return results
     }
 
@@ -159,14 +190,16 @@ class Search(private val db: SQLiteDatabase) {
     companion object {
         private const val PER_TIER = 100
         private const val MAX_RESULTS = 100
+        /** Key rows read by a pattern search; an entry can have several matching keys. */
+        private const val PATTERN_ROWS = 1000
 
         /**
-         * Escapes GLOB metacharacters. In Japanese queries '?' (and its
-         * full-width form ？) stays a single-character wildcard.
+         * Escapes GLOB metacharacters. In Japanese queries '?' stays a
+         * single-character wildcard.
          */
         fun globLiteral(text: String, keepWildcard: Boolean): String = buildString {
             for (c in text) when {
-                keepWildcard && (c == '?' || c == '？') -> append('?')
+                keepWildcard && c == '?' -> append('?')
                 c == '*' || c == '[' || c == '?' -> append('[').append(c).append(']')
                 else -> append(c)
             }

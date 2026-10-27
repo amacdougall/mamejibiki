@@ -189,6 +189,7 @@ private fun EmptyHelp() {
         val muted = MaterialTheme.colorScheme.onSurfaceVariant
         Text("Search by kanji, kana or English.", color = muted)
         Text("? matches any one character: 日?, ??語", color = muted)
+        Text("* matches any run of characters: *食 finds words ending in 食, *食* words containing it.", color = muted)
         Text("Words starting with your input are included, and small slips in long vowels or voicing (ゆき → 勇気) are tolerated.", color = muted)
         Text("Conjugated words find their dictionary form: 食べられない → 食べる.", color = muted)
     }
@@ -340,9 +341,11 @@ private fun formsLine(result: SearchResult): Pair<AnnotatedString, List<PitchLin
             val match: FormMatch? = result.match?.takeIf { it.formKind == kind && it.formIndex == index }
             when {
                 match != null -> {
-                    val length = (match.highlightLength ?: text.length).coerceAtMost(text.length)
-                    withStyle(SpanStyle(color = accent, fontWeight = FontWeight.SemiBold)) { append(text.take(length)) }
-                    withStyle(SpanStyle(color = accentRemainder, fontWeight = FontWeight.SemiBold)) { append(text.drop(length)) }
+                    val ranges = match.highlight ?: listOf(text.indices)
+                    text.forEachIndexed { i, c ->
+                        val color = if (ranges.any { i in it }) accent else accentRemainder
+                        withStyle(SpanStyle(color = color, fontWeight = FontWeight.SemiBold)) { append(c) }
+                    }
                 }
                 isRare -> withStyle(SpanStyle(color = rare)) { append(text) }
                 else -> append(text)

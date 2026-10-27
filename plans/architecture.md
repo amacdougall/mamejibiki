@@ -26,6 +26,7 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `data/Kanji.kt` | The kanji JSON models: `KanjiInfo` (KANJIDIC2), `KanjiNode` (component tree), `KanjiVg`. |
 | `data/Entry.kt` | The entry JSON model (`Entry`, `KanjiForm`, `KanaForm`, `Sense`), `FormRef`, and the headword rule (UI spec §2). |
 | `search/Search.kt` | The ranked search tiers (`Tier`) over `jp_keys` and `en_keys`. |
+| `search/Wildcard.kt` | `*` wildcard parsing, the GLOB pattern, and the highlight ranges a pattern matched. Pure Kotlin. |
 | `search/Kana.kt`, `search/English.kt` | Query normalization, identical to `pipeline/lib/kana.rb` and `english.rb`. |
 | `pitch/Pitch.kt` | Mora splitting and Wadoku H/L parsing into high runs. |
 | `anki/Kaishi.kt` | The Kaishi 1.5k note's fields and tags, ported from anki-scripts (UI spec §8). Pure Kotlin. |
@@ -61,9 +62,10 @@ Unit tests live in `app/src/test/`. They're plain JVM tests and can't use Androi
 ## 4. Search
 
 - **Japanese queries** go through these tiers in order: exact key, whole-word fuzzy key, deinflected, prefix key, fuzzy prefix key. All but the deinflected tier are a `GLOB` on `jp_keys`. Results are de-duplicated across tiers and capped at 100.
+- **`*` wildcards:** `Search.run` folds ＊ and ？ to `*` and `?`, and drops trailing `*`s. If a `*` remains, the query is a pattern: one `GLOB` over plain keys (kind 0), with no fuzzy or deinflected tiers, and `Wildcard.highlight` finds the matched ranges in the key (key positions are form positions).
 - **The deinflected tier** runs `Deinflector` on the query, looks up every candidate dictionary form as an exact key (kind 0), and keeps an entry only if `entries.pos` contains the candidate's class. It sorts in Kotlin (common, then rank) and sets `SearchResult.inflection` to the label.
 - **Any input without Japanese characters** is an English query, matched against `en_keys` in three tiers.
-- **Every result** carries a `FormMatch` (which form or reading matched, and how many characters to highlight) and its readings' pitch patterns.
+- **Every result** carries a `FormMatch` (which form or reading matched, and which character ranges to highlight) and its readings' pitch patterns.
 - `pipeline/query.rb` runs the same tiers against the built database from the command line, except the deinflected tier (that would need a Ruby copy of the conjugation rules). Keep the two in sync when the other tiers change. Deinflection is covered by `DeinflectorTest`.
 
 ## 5. Conjugation engine

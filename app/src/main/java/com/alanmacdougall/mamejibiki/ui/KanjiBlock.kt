@@ -192,7 +192,7 @@ fun KanjiBlock(
                         )
                     }
                 }
-                TextButton(onClick = { onSearch(state.literal) }) { Text("See more") }
+                TextButton(onClick = { onSearch("*${state.literal}*") }) { Text("See more") }
             }
         }
 
