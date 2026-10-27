@@ -6,3 +6,8 @@ gem 'sqlite3', '~> 2.8'
 group :test do
   gem 'minitest', '~> 5.25'
 end
+
+# anki_vectors.rb loads ../anki-scripts' PitchDatabase, which needs csv.
+group :vectors do
+  gem 'csv'
+end

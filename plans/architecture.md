@@ -11,7 +11,7 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | File | Role |
 |---|---|
 | `MainActivity.kt` | Creates `AppModel`, then sets the Compose content to `App(model)`. |
-| `ui/App.kt` | `AppModel` (the back stack and the `Dictionary`), the `Screen` interface, and `App()`, which shows the top of the stack and handles system back. |
+| `ui/App.kt` | `AppModel` (the back stack, the `Dictionary`, the snackbar and Send to AnkiDroid), the `Screen` interface, and `App()`, which shows the top of the stack and handles system back. |
 | `ui/SearchScreen.kt` | `SearchState` and the search screen: field, live search, result rows. |
 | `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Kanji is a placeholder. |
 | `ui/WordTab.kt` | The Word tab (UI spec §4). |
@@ -24,6 +24,9 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `search/Search.kt` | The ranked search tiers (`Tier`) over `jp_keys` and `en_keys`. |
 | `search/Kana.kt`, `search/English.kt` | Query normalization, identical to `pipeline/lib/kana.rb` and `english.rb`. |
 | `pitch/Pitch.kt` | Mora splitting and Wadoku H/L parsing into high runs. |
+| `anki/Kaishi.kt` | The Kaishi 1.5k note's fields and tags, ported from anki-scripts (UI spec §8). Pure Kotlin. |
+| `anki/AnkiDroid.kt` | Adds notes through AnkiDroid's ContentProvider: note type, deck and duplicate checks. |
+| `ui/SendToAnki.kt` | The runtime permission flow in front of `AppModel.sendToAnki`. |
 | `conjugation/Conjugation.kt` | The conjugation engine: the suffix rules, forward conjugation, and the Forms tab row definitions. |
 | `conjugation/Deinflector.kt` | The same rules run in reverse for deinflection search, and the English result labels. |
 

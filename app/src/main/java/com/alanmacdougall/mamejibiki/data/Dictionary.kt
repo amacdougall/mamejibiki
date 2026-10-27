@@ -2,6 +2,8 @@ package com.alanmacdougall.mamejibiki.data
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import com.alanmacdougall.mamejibiki.anki.Kaishi
+import com.alanmacdougall.mamejibiki.anki.KaishiNote
 import com.alanmacdougall.mamejibiki.pitch.Accent
 import com.alanmacdougall.mamejibiki.pitch.Pitch
 import com.alanmacdougall.mamejibiki.search.Kana
@@ -44,6 +46,11 @@ class Dictionary private constructor(private val db: SQLiteDatabase) {
      * other written forms the reading applies to, then the reading itself.
      */
     fun readingPitches(entry: Entry, headword: FormRef): List<List<Accent>> = entry.kana.map { reading ->
+        wadoku(entry, headword, reading)?.let { Pitch.parseAll(reading.text, it) } ?: emptyList()
+    }
+
+    /** A reading's Wadoku H/L string (several patterns comma-separated), looked up as in [readingPitches]. */
+    private fun wadoku(entry: Entry, headword: FormRef, reading: KanaForm): String? {
         val written = listOfNotNull(entry.kanji.getOrNull(headword.index)?.takeIf { headword.kind == FormRef.KANJI }) + entry.kanji
         val forms = (written.map { it.text }.filter { reading.appliesTo(it) } + reading.text).distinct()
         val key = Kana.toHiragana(reading.text)
@@ -52,7 +59,23 @@ class Dictionary private constructor(private val db: SQLiteDatabase) {
         db.rawQuery("SELECT form, hl FROM pitch WHERE reading = ? AND form IN ($placeholders)", arrayOf(key) + forms).use { c ->
             while (c.moveToNext()) found[c.getString(0)] = c.getString(1)
         }
-        forms.firstNotNullOfOrNull { found[it] }?.let { Pitch.parseAll(reading.text, it) } ?: emptyList()
+        return forms.firstNotNullOfOrNull { found[it] }
+    }
+
+    /** The JPDB rank of [form] read as [reading] (a reading headword is ranked by itself), or null. */
+    private fun rank(form: String, reading: String, isReading: Boolean): Int? {
+        val args = arrayOf(form, if (isReading) "" else Kana.toHiragana(reading))
+        return db.rawQuery("SELECT rank FROM freq WHERE form = ? AND reading = ?", args).use { c ->
+            if (c.moveToFirst()) c.getInt(0) else null
+        }
+    }
+
+    /** The Kaishi 1.5k note for an entry, with the headword chosen from [matched] (UI spec §8). */
+    fun kaishiNote(entry: Entry, matched: FormRef?): KaishiNote {
+        val headword = entry.headword(matched)
+        val word = entry.text(headword)
+        val reading = entry.kana[entry.readingFor(headword, matched)]
+        return Kaishi.note(entry, word, reading.text, wadoku(entry, headword, reading), rank(word, reading.text, headword.kind == FormRef.KANA))
     }
 
     companion object {

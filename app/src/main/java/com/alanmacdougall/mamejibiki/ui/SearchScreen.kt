@@ -1,10 +1,12 @@
 package com.alanmacdougall.mamejibiki.ui
 
+import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,6 +53,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alanmacdougall.mamejibiki.data.Dictionary
@@ -79,6 +84,7 @@ fun SearchScreen(
     state: SearchState,
     dictionary: Dictionary?,
     onOpen: (SearchResult) -> Unit,
+    onSend: (SearchResult) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -148,10 +154,15 @@ fun SearchScreen(
             )
             else -> LazyColumn(state = state.listState, modifier = Modifier.fillMaxSize()) {
                 items(results, key = { it.id }) { result ->
-                    ResultRow(result, onClick = {
-                        keyboard?.hide()
-                        onOpen(result)
-                    })
+                    ResultRow(
+                        result,
+                        onClick = {
+                            keyboard?.hide()
+                            onOpen(result)
+                        },
+                        onCopy = { copyText(context, result.entry.text(result.entry.headword(result.match?.form))) },
+                        onSend = { onSend(result) },
+                    )
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
@@ -170,12 +181,31 @@ private fun EmptyHelp() {
     }
 }
 
+/** A result row. Tap opens the entry; long-press shows Copy and Send to AnkiDroid (UI spec §2). */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ResultRow(result: SearchResult, onClick: () -> Unit) {
+private fun ResultRow(result: SearchResult, onClick: () -> Unit, onCopy: () -> Unit, onSend: () -> Unit) {
+    var menu by remember { mutableStateOf(false) }
+    Box {
+        ResultRowContent(result, Modifier.combinedClickable(onClick = onClick, onLongClick = { menu = true }))
+        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, offset = DpOffset(16.dp, 0.dp)) {
+            DropdownMenuItem(text = { Text("Copy") }, onClick = {
+                menu = false
+                onCopy()
+            })
+            DropdownMenuItem(text = { Text("Send to AnkiDroid") }, onClick = {
+                menu = false
+                onSend()
+            })
+        }
+    }
+}
+
+@Composable
+private fun ResultRowContent(result: SearchResult, modifier: Modifier) {
     Column(
-        Modifier
+        modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
@@ -254,6 +284,10 @@ private fun glossLine(result: SearchResult): String {
     val senses = result.entry.sense
     if (senses.size == 1) return senses[0].gloss.joinToString(", ")
     return senses.mapIndexed { i, s -> "${i + 1}. ${s.gloss.joinToString(", ")}" }.joinToString("  ")
+}
+
+private fun copyText(context: Context, text: String) {
+    context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(text, text))
 }
 
 private fun clipboardText(context: Context): String {

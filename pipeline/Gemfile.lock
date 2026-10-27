@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    csv (3.3.6)
     minitest (5.27.0)
     sqlite3 (2.10.1-aarch64-linux-gnu)
     sqlite3 (2.10.1-aarch64-linux-musl)
@@ -26,11 +27,13 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  csv
   minitest (~> 5.25)
   sqlite3 (~> 2.8)
 
 CHECKSUMS
   bundler (4.0.23) sha256=407ba8a1d928f412847f819aa5f8b6aef7c59fb51feb517112af8a165487287b
+  csv (3.3.6)
   minitest (5.27.0) sha256=2d3b17f8a36fe7801c1adcffdbc38233b938eb0b4966e97a6739055a45fa77d5
   sqlite3 (2.10.1-aarch64-linux-gnu) sha256=48390cc2b809acd1280f5c9daaf3c2013833adb8a5ece9b0634f708651080ccd
   sqlite3 (2.10.1-aarch64-linux-musl) sha256=db1bcddf98e4eeea80ca896f56aa3f9468364fa1ee8e042ddc6b628b5092fabb

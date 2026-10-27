@@ -33,6 +33,19 @@ data class Entry(
         return if (best != null) FormRef(FormRef.KANJI, best) else matched ?: FormRef(FormRef.KANA, 0)
     }
 
+    /**
+     * The reading that goes with [headword] on an Anki card: the headword
+     * itself if it's a reading; else the matched reading if it applies to the
+     * headword; else the headword's first common reading.
+     */
+    fun readingFor(headword: FormRef, matched: FormRef?): Int {
+        if (headword.kind == FormRef.KANA) return headword.index
+        val written = kanji[headword.index].text
+        if (matched?.kind == FormRef.KANA && kana[matched.index].appliesTo(written)) return matched.index
+        val candidates = kana.indices.filter { kana[it].appliesTo(written) }
+        return candidates.firstOrNull { !kana[it].isRare } ?: candidates.firstOrNull() ?: 0
+    }
+
     companion object {
         private val json = Json { ignoreUnknownKeys = true }
 

@@ -8,6 +8,7 @@ bundle install
 bundle exec ruby build.rb             # fetch missing sources, build, install into the app (~30 s)
 bundle exec ruby build.rb --refresh   # also re-fetch the latest JMdict and JmdictFurigana
 bundle exec ruby query.rb ゆううつ     # try the app's search tiers against the built database
+bundle exec ruby anki_vectors.rb      # regenerate shared/anki-vectors.json from ../anki-scripts' code
 bundle exec ruby -Itest -e 'Dir["test/*_test.rb"].each { |f| require_relative f }'
 ```
 

@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -15,6 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.alanmacdougall.mamejibiki.anki.AnkiDroid
+import com.alanmacdougall.mamejibiki.anki.SendResult
 import com.alanmacdougall.mamejibiki.data.Dictionary
 import com.alanmacdougall.mamejibiki.search.SearchResult
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +38,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     val stack = mutableStateListOf<Screen>(SearchState(""))
 
+    val snackbar = SnackbarHostState()
+    val anki = AnkiDroid(application)
+
     init {
         // Open on IO but publish on the main thread, so the state write can't
         // race a composition that hasn't been applied yet.
@@ -51,15 +58,44 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun openEntry(result: SearchResult) = push(EntryState(result))
 
     fun search(text: String) = push(SearchState(text))
+
+    /** Shows a message in the snackbar, replacing any message already showing. */
+    fun notify(message: String) {
+        viewModelScope.launch {
+            snackbar.currentSnackbarData?.dismiss()
+            snackbar.showSnackbar(message)
+        }
+    }
+
+    /** Sends a result's entry to AnkiDroid as a Kaishi 1.5k note (UI spec §8). Needs AnkiDroid's permission. */
+    fun sendToAnki(result: SearchResult) {
+        val d = dictionary ?: return
+        viewModelScope.launch {
+            val sent = withContext(Dispatchers.IO) { anki.send(d.kaishiNote(result.entry, result.match?.form)) }
+            snackbar.currentSnackbarData?.dismiss()
+            when (sent) {
+                is SendResult.Added -> snackbar.showSnackbar("Added ${sent.word} to ${AnkiDroid.DECK}")
+                is SendResult.Duplicate -> snackbar.showSnackbar("${sent.word} is already in Anki")
+                is SendResult.Failed -> snackbar.showSnackbar(sent.message)
+            }
+        }
+    }
 }
 
 @Composable
 fun App(model: AppModel) {
     BackHandler(enabled = model.stack.size > 1) { model.pop() }
-    Scaffold { padding ->
+    Scaffold(snackbarHost = { SnackbarHost(model.snackbar, Modifier.imePadding()) }) { padding ->
         Box(Modifier.padding(padding).imePadding()) {
             when (val screen = model.stack.last()) {
-                is SearchState -> key(screen) { SearchScreen(screen, model.dictionary, onOpen = model::openEntry) }
+                is SearchState -> key(screen) {
+                    SearchScreen(
+                        screen,
+                        model.dictionary,
+                        onOpen = model::openEntry,
+                        onSend = rememberSendToAnki(model),
+                    )
+                }
                 is EntryState -> key(screen) {
                     EntryScreen(screen, model.dictionary, onBack = model::pop, onSearch = model::search)
                 }

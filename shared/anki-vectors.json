@@ -1,0 +1,2287 @@
+[
+  {
+    "word": "食べる",
+    "reading": "たべる",
+    "entry": {
+      "kanji": [
+        {
+          "text": "食べる",
+          "common": true
+        },
+        {
+          "text": "喰べる",
+          "tags": [
+            "sK"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "たべる",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "gloss": [
+            "to eat"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "gloss": [
+            "to live on (e.g. a salary)",
+            "to live off",
+            "to subsist on"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. to eat<br>\n2. to live on (e.g. a salary), to live off, to subsist on",
+    "notes": "他動詞",
+    "pitch": {
+      "reading": "たべる",
+      "hl": "LHLL",
+      "html": "た<span style=\"display:inline-block;position:relative;padding-right:0.1em;margin-right:0.1em;\"><span style=\"display:inline;\">べ</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;right:-0.1em;height:0.4em;border-right-width:0.1em;border-right-style:solid;\"></span></span>る"
+    }
+  },
+  {
+    "word": "勉強",
+    "reading": "べんきょう",
+    "entry": {
+      "kanji": [
+        {
+          "text": "勉強",
+          "common": true
+        }
+      ],
+      "kana": [
+        {
+          "text": "べんきょう",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "n",
+            "vs",
+            "vt"
+          ],
+          "gloss": [
+            "study"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "n",
+            "vs",
+            "vi"
+          ],
+          "gloss": [
+            "diligence",
+            "working hard"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "n"
+          ],
+          "gloss": [
+            "experience",
+            "knowledge",
+            "lesson (for the future)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "n",
+            "vs",
+            "vt",
+            "vi"
+          ],
+          "gloss": [
+            "discount",
+            "price reduction"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. study<br>\n2. diligence, working hard<br>\n3. experience, knowledge, lesson (for the future)<br>\n4. discount, price reduction",
+    "notes": "他動詞（する）",
+    "pitch": {
+      "reading": "べんきょう",
+      "hl": "LHHhHH",
+      "html": "べ<span style=\"display:inline-block;position:relative;\"><span style=\"display:inline;\">んきょう</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;\"></span></span>"
+    }
+  },
+  {
+    "word": "静か",
+    "reading": "しずか",
+    "entry": {
+      "kanji": [
+        {
+          "text": "静か",
+          "common": true
+        },
+        {
+          "text": "閑か",
+          "tags": [
+            "rK"
+          ]
+        },
+        {
+          "text": "徐か",
+          "tags": [
+            "sK"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "しずか",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "adj-na"
+          ],
+          "gloss": [
+            "quiet",
+            "silent"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "adj-na"
+          ],
+          "gloss": [
+            "slow",
+            "unhurried"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "adj-na"
+          ],
+          "gloss": [
+            "calm",
+            "peaceful"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. quiet, silent<br>\n2. slow, unhurried<br>\n3. calm, peaceful",
+    "notes": "形容動詞",
+    "pitch": {
+      "reading": "しずか",
+      "hl": "HLLL",
+      "html": "<span style=\"display:inline-block;position:relative;padding-right:0.1em;margin-right:0.1em;\"><span style=\"display:inline;\">し</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;right:-0.1em;height:0.4em;border-right-width:0.1em;border-right-style:solid;\"></span></span>ずか"
+    }
+  },
+  {
+    "word": "高い",
+    "reading": "たかい",
+    "entry": {
+      "kanji": [
+        {
+          "text": "高い",
+          "common": true
+        },
+        {
+          "text": "高価い",
+          "tags": [
+            "sK"
+          ]
+        },
+        {
+          "text": "高ーい",
+          "tags": [
+            "sK"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "たかい",
+          "common": true
+        },
+        {
+          "text": "たかーい",
+          "tags": [
+            "sk"
+          ]
+        },
+        {
+          "text": "たっけー",
+          "tags": [
+            "sk"
+          ]
+        },
+        {
+          "text": "たっかーい",
+          "tags": [
+            "sk"
+          ]
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "adj-i"
+          ],
+          "antonym": [
+            [
+              "低い",
+              1
+            ]
+          ],
+          "gloss": [
+            "high",
+            "tall"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "adj-i"
+          ],
+          "gloss": [
+            "expensive",
+            "high-priced"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "adj-i"
+          ],
+          "gloss": [
+            "high (level)",
+            "above average (in degree, quality, etc.)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "adj-i"
+          ],
+          "gloss": [
+            "loud"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "adj-i"
+          ],
+          "gloss": [
+            "high-pitched",
+            "shrill"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. high, tall<br>\n2. expensive, high-priced<br>\n3. high (level), above average (in degree, quality, etc.)<br>\n4. loud<br>\n5. high-pitched, shrill",
+    "notes": "形容詞",
+    "pitch": {
+      "reading": "たかい",
+      "hl": "LHLL",
+      "html": "た<span style=\"display:inline-block;position:relative;padding-right:0.1em;margin-right:0.1em;\"><span style=\"display:inline;\">か</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;right:-0.1em;height:0.4em;border-right-width:0.1em;border-right-style:solid;\"></span></span>い"
+    }
+  },
+  {
+    "word": "ちょっと",
+    "reading": "ちょっと",
+    "entry": {
+      "kanji": [
+        {
+          "text": "一寸",
+          "tags": [
+            "rK"
+          ]
+        },
+        {
+          "text": "鳥渡",
+          "tags": [
+            "ateji",
+            "rK"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "ちょっと",
+          "common": true
+        },
+        {
+          "text": "ちょと"
+        },
+        {
+          "text": "チョット",
+          "appliesToKanji": []
+        },
+        {
+          "text": "ちょいと",
+          "appliesToKanji": []
+        },
+        {
+          "text": "チョッと",
+          "appliesToKanji": []
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "adv"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "a little",
+            "a bit",
+            "slightly"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "adv"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "just a minute",
+            "for a moment",
+            "briefly"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "adv"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "somewhat",
+            "rather",
+            "fairly",
+            "pretty",
+            "quite"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "adv"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "info": [
+            "before a verb in negative form"
+          ],
+          "gloss": [
+            "(not) easily",
+            "(not) readily"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "int"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "hey!",
+            "come on",
+            "excuse me"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "exp"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "thanks, but no",
+            "not feasible",
+            "not possible"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "suf"
+          ],
+          "misc": [
+            "col",
+            "uk"
+          ],
+          "info": [
+            "after an amount"
+          ],
+          "gloss": [
+            "a little more than (a week, month, etc.)",
+            "slightly more than"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. a little, a bit, slightly<br>\n2. just a minute, for a moment, briefly<br>\n3. somewhat, rather, fairly, pretty, quite<br>\n4. (not) easily, (not) readily<br>\n5. hey!, come on, excuse me<br>\n6. thanks, but no, not feasible, not possible<br>\n7. a little more than (a week, month, etc.), slightly more than",
+    "notes": "副詞、接尾辞",
+    "pitch": {
+      "reading": "ちょっと",
+      "hl": "HhLLL,LlHHH",
+      "html": "<span style=\"display:inline-block;position:relative;padding-right:0.1em;margin-right:0.1em;\"><span style=\"display:inline;\">ちょ</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;right:-0.1em;height:0.4em;border-right-width:0.1em;border-right-style:solid;\"></span></span>っと"
+    }
+  },
+  {
+    "word": "東京",
+    "reading": "とうきょう",
+    "entry": {
+      "kanji": [
+        {
+          "text": "東京",
+          "common": true
+        },
+        {
+          "text": "東亰",
+          "tags": [
+            "rK"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "とうきょう",
+          "common": true
+        },
+        {
+          "text": "とうけい",
+          "tags": [
+            "ok"
+          ]
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "n"
+          ],
+          "gloss": [
+            "Tokyo"
+          ]
+        }
+      ]
+    },
+    "meaning": "Tokyo",
+    "notes": "",
+    "pitch": {
+      "reading": "とうきょう",
+      "hl": "LHHhHH",
+      "html": "と<span style=\"display:inline-block;position:relative;\"><span style=\"display:inline;\">うきょう</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;\"></span></span>"
+    }
+  },
+  {
+    "word": "男",
+    "reading": "おとこ",
+    "entry": {
+      "kanji": [
+        {
+          "text": "男",
+          "common": true
+        }
+      ],
+      "kana": [
+        {
+          "text": "おとこ",
+          "common": true
+        },
+        {
+          "text": "おっこ",
+          "tags": [
+            "ok"
+          ]
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "n",
+            "n-pref"
+          ],
+          "related": [
+            [
+              "女",
+              "おんな・1",
+              1
+            ]
+          ],
+          "gloss": [
+            "man",
+            "male"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "n"
+          ],
+          "gloss": [
+            "fellow",
+            "guy",
+            "chap",
+            "bloke"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "n"
+          ],
+          "gloss": [
+            "male lover",
+            "boyfriend",
+            "man"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "n"
+          ],
+          "gloss": [
+            "manliness",
+            "manly honor",
+            "manly honour",
+            "manly reputation"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. man, male<br>\n2. fellow, guy, chap, bloke<br>\n3. male lover, boyfriend, man<br>\n4. manliness, manly honor, manly honour, manly reputation",
+    "notes": "",
+    "pitch": {
+      "reading": "おとこ",
+      "hl": "LHHL",
+      "html": "お<span style=\"display:inline-block;position:relative;\"><span style=\"display:inline;\">とこ</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;\"></span></span>"
+    }
+  },
+  {
+    "word": "コーヒー",
+    "reading": "コーヒー",
+    "entry": {
+      "kanji": [
+        {
+          "text": "珈琲",
+          "tags": [
+            "ateji"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "コーヒー",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "n"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "coffee"
+          ]
+        }
+      ]
+    },
+    "meaning": "coffee",
+    "notes": "",
+    "pitch": null
+  },
+  {
+    "word": "引く",
+    "reading": "ひく",
+    "entry": {
+      "kanji": [
+        {
+          "text": "引く",
+          "common": true
+        },
+        {
+          "text": "曳く",
+          "tags": [
+            "rK"
+          ]
+        },
+        {
+          "text": "牽く",
+          "tags": [
+            "rK"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "ひく",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "gloss": [
+            "to pull",
+            "to tug",
+            "to lead (e.g. a horse)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "related": [
+            [
+              "注意を引く"
+            ]
+          ],
+          "info": [
+            "also written as 惹く"
+          ],
+          "gloss": [
+            "to draw (attention, sympathy, etc.)",
+            "to attract (e.g. interest)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "gloss": [
+            "to draw back (e.g. one's hand)",
+            "to draw in (one's chin, stomach, etc.)",
+            "to pull in"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "gloss": [
+            "to draw (a card, mahjong tile, etc.)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "related": [
+            [
+              "図面を引く"
+            ]
+          ],
+          "gloss": [
+            "to draw (a line, plan, etc.)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "related": [
+            [
+              "風邪を引く"
+            ]
+          ],
+          "gloss": [
+            "to catch (a cold)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "info": [
+            "usu. written as 弾く"
+          ],
+          "gloss": [
+            "to play (a stringed or keyboard instrument)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "related": [
+            [
+              "辞書を引く"
+            ]
+          ],
+          "gloss": [
+            "to look up (in a dictionary, phone book, etc.)",
+            "to consult",
+            "to check"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "info": [
+            "esp. 牽く"
+          ],
+          "gloss": [
+            "to haul",
+            "to pull (vehicles)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "gloss": [
+            "to subtract",
+            "to deduct"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "gloss": [
+            "to recede",
+            "to ebb",
+            "to fade"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "gloss": [
+            "to be descend from",
+            "to inherit (a characteristic)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "gloss": [
+            "to quote",
+            "to cite",
+            "to raise (as evidence)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "gloss": [
+            "to lay on (electricity, gas, etc.)",
+            "to install (e.g. a telephone)",
+            "to supply (e.g. water)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "gloss": [
+            "to hold (e.g. a note)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vt"
+          ],
+          "gloss": [
+            "to apply (e.g. lipstick)",
+            "to oil (e.g. a pan)",
+            "to wax (e.g. a floor)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vi"
+          ],
+          "info": [
+            "also written as 退く"
+          ],
+          "gloss": [
+            "to move back",
+            "to draw back",
+            "to recede",
+            "to fall back",
+            "to retreat"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vi"
+          ],
+          "info": [
+            "also written as 退く"
+          ],
+          "gloss": [
+            "to lessen",
+            "to subside",
+            "to ebb",
+            "to go down (e.g. of swelling)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vi"
+          ],
+          "info": [
+            "also written as 退く"
+          ],
+          "gloss": [
+            "to resign",
+            "to retire",
+            "to quit"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vi"
+          ],
+          "misc": [
+            "col"
+          ],
+          "gloss": [
+            "to be put off (by someone's words or behaviour)",
+            "to be turned off",
+            "to recoil (in disgust, etc.)",
+            "to cringe"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5k",
+            "vi"
+          ],
+          "related": [
+            [
+              "ヒキ",
+              4
+            ]
+          ],
+          "field": [
+            "go"
+          ],
+          "gloss": [
+            "to draw back",
+            "to pull back",
+            "to retreat"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. to pull, to tug, to lead (e.g. a horse)<br>\n2. to draw (attention, sympathy, etc.), to attract (e.g. interest)<br>\n3. to draw back (e.g. one's hand), to draw in (one's chin, stomach, etc.), to pull in<br>\n4. to draw (a card, mahjong tile, etc.)<br>\n5. to draw (a line, plan, etc.)<br>\n6. to catch (a cold)<br>\n7. to play (a stringed or keyboard instrument)<br>\n8. to look up (in a dictionary, phone book, etc.), to consult, to check<br>\n9. to haul, to pull (vehicles)<br>\n10. to subtract, to deduct<br>\n11. to recede, to ebb, to fade<br>\n12. to be descend from, to inherit (a characteristic)<br>\n13. to quote, to cite, to raise (as evidence)<br>\n14. to lay on (electricity, gas, etc.), to install (e.g. a telephone), to supply (e.g. water)<br>\n15. to hold (e.g. a note)<br>\n16. to apply (e.g. lipstick), to oil (e.g. a pan), to wax (e.g. a floor)<br>\n17. to move back, to draw back, to recede, to fall back, to retreat<br>\n18. to lessen, to subside, to ebb, to go down (e.g. of swelling)<br>\n19. to resign, to retire, to quit<br>\n20. to be put off (by someone's words or behaviour), to be turned off, to recoil (in disgust, etc.), to cringe<br>\n21. to draw back, to pull back, to retreat",
+    "notes": "他動詞",
+    "pitch": {
+      "reading": "ひく",
+      "hl": "LHL",
+      "html": "ひ<span style=\"display:inline-block;position:relative;\"><span style=\"display:inline;\">く</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;\"></span></span>"
+    }
+  },
+  {
+    "word": "ゆっくり",
+    "reading": "ゆっくり",
+    "entry": {
+      "kana": [
+        {
+          "text": "ゆっくり",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "adv",
+            "adv-to",
+            "vs"
+          ],
+          "misc": [
+            "on-mim"
+          ],
+          "gloss": [
+            "slowly",
+            "unhurriedly",
+            "without haste",
+            "leisurely",
+            "at one's leisure"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "adv"
+          ],
+          "misc": [
+            "on-mim"
+          ],
+          "gloss": [
+            "easily (e.g. in time)",
+            "well",
+            "sufficiently",
+            "amply",
+            "with time to spare"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "adv",
+            "vs"
+          ],
+          "misc": [
+            "on-mim"
+          ],
+          "gloss": [
+            "well (e.g. sleep)",
+            "comfortably"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. slowly, unhurriedly, without haste, leisurely, at one's leisure<br>\n2. easily (e.g. in time), well, sufficiently, amply, with time to spare<br>\n3. well (e.g. sleep), comfortably",
+    "notes": "副詞（と）、オノマトペ",
+    "pitch": {
+      "reading": "ゆっくり",
+      "hl": "LHHLL",
+      "html": "ゆ<span style=\"display:inline-block;position:relative;padding-right:0.1em;margin-right:0.1em;\"><span style=\"display:inline;\">っく</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;right:-0.1em;height:0.4em;border-right-width:0.1em;border-right-style:solid;\"></span></span>り"
+    }
+  },
+  {
+    "word": "枚",
+    "reading": "まい",
+    "entry": {
+      "kanji": [
+        {
+          "text": "枚",
+          "common": true
+        }
+      ],
+      "kana": [
+        {
+          "text": "まい",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "ctr"
+          ],
+          "gloss": [
+            "counter for thin, flat objects (e.g. sheets of paper, plates, coins)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "ctr"
+          ],
+          "gloss": [
+            "counter for portions of gyōza or soba"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "ctr"
+          ],
+          "field": [
+            "sumo"
+          ],
+          "gloss": [
+            "counter for ranks"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "ctr"
+          ],
+          "field": [
+            "sumo"
+          ],
+          "gloss": [
+            "counter for wrestlers of a particular rank"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "ctr"
+          ],
+          "gloss": [
+            "counter for fields or rice paddies"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "ctr"
+          ],
+          "gloss": [
+            "counter for palanquin bearers"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. counter for thin, flat objects (e.g. sheets of paper, plates, coins)<br>\n2. counter for portions of gyōza or soba<br>\n3. counter for ranks<br>\n4. counter for wrestlers of a particular rank<br>\n5. counter for fields or rice paddies<br>\n6. counter for palanquin bearers",
+    "notes": "助数詞",
+    "pitch": null
+  },
+  {
+    "word": "召し上がる",
+    "reading": "めしあがる",
+    "entry": {
+      "kanji": [
+        {
+          "text": "召し上がる",
+          "common": true
+        },
+        {
+          "text": "召しあがる",
+          "tags": [
+            "sK"
+          ]
+        },
+        {
+          "text": "召上がる",
+          "tags": [
+            "sK"
+          ]
+        },
+        {
+          "text": "召し上る",
+          "tags": [
+            "sK"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "めしあがる",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "v5r",
+            "vt"
+          ],
+          "misc": [
+            "hon"
+          ],
+          "gloss": [
+            "to eat",
+            "to drink"
+          ]
+        }
+      ]
+    },
+    "meaning": "to eat, to drink",
+    "notes": "他動詞、尊敬語",
+    "pitch": {
+      "reading": "めしあがる",
+      "hl": "LHHHHH,LHHHLL",
+      "html": "め<span style=\"display:inline-block;position:relative;\"><span style=\"display:inline;\">しあがる</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;\"></span></span>"
+    }
+  },
+  {
+    "word": "ドキドキ",
+    "reading": "ドキドキ",
+    "entry": {
+      "kana": [
+        {
+          "text": "ドキドキ",
+          "common": true
+        },
+        {
+          "text": "どきどき",
+          "common": true
+        },
+        {
+          "text": "どきんどきん"
+        },
+        {
+          "text": "ドキンドキン"
+        },
+        {
+          "text": "ドッキドキ",
+          "tags": [
+            "sk"
+          ]
+        },
+        {
+          "text": "どっきどき",
+          "tags": [
+            "sk"
+          ]
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "adv",
+            "adv-to"
+          ],
+          "misc": [
+            "on-mim"
+          ],
+          "gloss": [
+            "thump-thump",
+            "bang-bang",
+            "pit-a-pat",
+            "pitapat",
+            "pitter-patter"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "vs"
+          ],
+          "misc": [
+            "on-mim"
+          ],
+          "gloss": [
+            "to beat fast (of one's heart)",
+            "to throb",
+            "to pound",
+            "to palpitate"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. thump-thump, bang-bang, pit-a-pat, pitapat, pitter-patter<br>\n2. to beat fast (of one's heart), to throb, to pound, to palpitate",
+    "notes": "副詞（と）、オノマトペ",
+    "pitch": null
+  },
+  {
+    "word": "来る",
+    "reading": "くる",
+    "entry": {
+      "kanji": [
+        {
+          "text": "来る",
+          "common": true
+        },
+        {
+          "text": "來る",
+          "tags": [
+            "sK"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "くる",
+          "common": true
+        },
+        {
+          "text": "クる",
+          "tags": [
+            "sk"
+          ]
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "vk",
+            "vi"
+          ],
+          "gloss": [
+            "to come (spatially or temporally)",
+            "to approach",
+            "to arrive"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "vk",
+            "vi",
+            "aux-v"
+          ],
+          "related": [
+            [
+              "行ってくる",
+              2
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "info": [
+            "after the -te form of a verb"
+          ],
+          "gloss": [
+            "to come back",
+            "to do ... and come back"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "vk",
+            "vi",
+            "aux-v"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "info": [
+            "after the -te form of a verb"
+          ],
+          "gloss": [
+            "to come to be",
+            "to become",
+            "to get",
+            "to grow",
+            "to continue"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "vk",
+            "vi"
+          ],
+          "gloss": [
+            "to come from",
+            "to be caused by",
+            "to derive from"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "vk",
+            "vi"
+          ],
+          "related": [
+            [
+              "と来たら"
+            ]
+          ],
+          "gloss": [
+            "to come to (e.g. \"when it comes to spinach ...\")"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. to come (spatially or temporally), to approach, to arrive<br>\n2. to come back, to do ... and come back<br>\n3. to come to be, to become, to get, to grow, to continue<br>\n4. to come from, to be caused by, to derive from<br>\n5. to come to (e.g. \"when it comes to spinach ...\")",
+    "notes": "自動詞",
+    "pitch": {
+      "reading": "くる",
+      "hl": "HLL",
+      "html": "<span style=\"display:inline-block;position:relative;padding-right:0.1em;margin-right:0.1em;\"><span style=\"display:inline;\">く</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;right:-0.1em;height:0.4em;border-right-width:0.1em;border-right-style:solid;\"></span></span>る"
+    }
+  },
+  {
+    "word": "走る",
+    "reading": "はしる",
+    "entry": {
+      "kanji": [
+        {
+          "text": "走る",
+          "common": true
+        },
+        {
+          "text": "奔る",
+          "tags": [
+            "rK"
+          ]
+        },
+        {
+          "text": "疾る",
+          "tags": [
+            "rK"
+          ]
+        },
+        {
+          "text": "趨る",
+          "tags": [
+            "rK"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "はしる",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "v5r",
+            "vi"
+          ],
+          "gloss": [
+            "to run"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5r",
+            "vi"
+          ],
+          "gloss": [
+            "to run (of a vehicle)",
+            "to drive",
+            "to travel",
+            "to move",
+            "to sail"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5r",
+            "vi"
+          ],
+          "gloss": [
+            "to rush (to)",
+            "to dash",
+            "to race"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5r",
+            "vi"
+          ],
+          "gloss": [
+            "to retreat",
+            "to flee",
+            "to defect (to)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5r",
+            "vi"
+          ],
+          "info": [
+            "occ. 奔る"
+          ],
+          "gloss": [
+            "to run away",
+            "to abscond",
+            "to elope"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5r",
+            "vi"
+          ],
+          "gloss": [
+            "to flash (of lightning)",
+            "to streak",
+            "to shoot (through; e.g. of pain)",
+            "to run (through)",
+            "to flare",
+            "to flit (e.g. across one's face)",
+            "to spread quickly (of news, shock, etc.)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5r",
+            "vi"
+          ],
+          "info": [
+            "as 〜に走る; occ. 趨る"
+          ],
+          "gloss": [
+            "to go (e.g. bad, to extremes)",
+            "to become",
+            "to turn",
+            "to take to (e.g. crime)",
+            "to get carried away by (e.g. one's emotions)",
+            "to get involved in",
+            "to get wrapped up in"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5r",
+            "vi"
+          ],
+          "gloss": [
+            "to run (through; of a road, street, etc.)",
+            "to extend (e.g. of a mountain range)",
+            "to stretch",
+            "to lie"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. to run<br>\n2. to run (of a vehicle), to drive, to travel, to move, to sail<br>\n3. to rush (to), to dash, to race<br>\n4. to retreat, to flee, to defect (to)<br>\n5. to run away, to abscond, to elope<br>\n6. to flash (of lightning), to streak, to shoot (through; e.g. of pain), to run (through), to flare, to flit (e.g. across one's face), to spread quickly (of news, shock, etc.)<br>\n7. to go (e.g. bad, to extremes), to become, to turn, to take to (e.g. crime), to get carried away by (e.g. one's emotions), to get involved in, to get wrapped up in<br>\n8. to run (through; of a road, street, etc.), to extend (e.g. of a mountain range), to stretch, to lie",
+    "notes": "自動詞",
+    "pitch": {
+      "reading": "はしる",
+      "hl": "LHLL",
+      "html": "は<span style=\"display:inline-block;position:relative;padding-right:0.1em;margin-right:0.1em;\"><span style=\"display:inline;\">し</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;right:-0.1em;height:0.4em;border-right-width:0.1em;border-right-style:solid;\"></span></span>る"
+    }
+  },
+  {
+    "word": "ござる",
+    "reading": "ござる",
+    "entry": {
+      "kanji": [
+        {
+          "text": "御座る",
+          "tags": [
+            "rK"
+          ]
+        },
+        {
+          "text": "ご座る",
+          "tags": [
+            "sK"
+          ]
+        },
+        {
+          "text": "厶る",
+          "tags": [
+            "sK"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "ござる"
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "v5r",
+            "vi"
+          ],
+          "related": [
+            [
+              "ございます",
+              1
+            ]
+          ],
+          "misc": [
+            "pol",
+            "arch",
+            "uk"
+          ],
+          "info": [
+            "usu. ございます in modern Japanese"
+          ],
+          "gloss": [
+            "to be"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v5r",
+            "vi"
+          ],
+          "misc": [
+            "hon",
+            "arch",
+            "uk"
+          ],
+          "gloss": [
+            "to come",
+            "to go",
+            "to be (somewhere)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "aux-v",
+            "v5r"
+          ],
+          "misc": [
+            "hon",
+            "arch",
+            "uk"
+          ],
+          "info": [
+            "after the ～て form of a verb"
+          ],
+          "gloss": [
+            "to be (doing)"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. to be<br>\n2. to come, to go, to be (somewhere)<br>\n3. to be (doing)",
+    "notes": "自動詞、尊敬語、丁寧語",
+    "pitch": {
+      "reading": "ござる",
+      "hl": "LHLL",
+      "html": "ご<span style=\"display:inline-block;position:relative;padding-right:0.1em;margin-right:0.1em;\"><span style=\"display:inline;\">ざ</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;right:-0.1em;height:0.4em;border-right-width:0.1em;border-right-style:solid;\"></span></span>る"
+    }
+  },
+  {
+    "word": "御",
+    "reading": "ご",
+    "entry": {
+      "kanji": [
+        {
+          "text": "御",
+          "common": true
+        }
+      ],
+      "kana": [
+        {
+          "text": "ご",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "pref"
+          ],
+          "related": [
+            [
+              "御",
+              "お"
+            ]
+          ],
+          "misc": [
+            "hon",
+            "pol",
+            "hum",
+            "uk"
+          ],
+          "info": [
+            "usu. before a term with an on-yomi reading"
+          ],
+          "gloss": [
+            "honorific/polite/humble prefix"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "suf"
+          ],
+          "misc": [
+            "hon"
+          ],
+          "info": [
+            "after a noun indicating a person"
+          ],
+          "gloss": [
+            "honorific suffix"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. honorific/polite/humble prefix<br>\n2. honorific suffix",
+    "notes": "接頭辞、接尾辞、尊敬語、謙譲語、丁寧語",
+    "pitch": null
+  },
+  {
+    "word": "的",
+    "reading": "てき",
+    "entry": {
+      "kanji": [
+        {
+          "text": "的",
+          "common": true
+        }
+      ],
+      "kana": [
+        {
+          "text": "てき",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "suf",
+            "adj-na"
+          ],
+          "info": [
+            "used to form adjectives from nouns"
+          ],
+          "gloss": [
+            "-ical",
+            "-ive",
+            "-al",
+            "-ic",
+            "-y"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "suf",
+            "adj-na"
+          ],
+          "gloss": [
+            "-like",
+            "-ish",
+            "-sort of",
+            "-kind of"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "suf",
+            "adj-na"
+          ],
+          "misc": [
+            "col"
+          ],
+          "info": [
+            "used similarly to a quoting particle, esp. as 的な or 的なこと"
+          ],
+          "gloss": [
+            "(something) like",
+            "along the lines of"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "suf",
+            "adj-na"
+          ],
+          "misc": [
+            "col"
+          ],
+          "info": [
+            "after a noun or pronoun, esp. adverbially as ～に(は)"
+          ],
+          "gloss": [
+            "-wise",
+            "in terms of",
+            "for",
+            "from the viewpoint of",
+            "from a ... standpoint",
+            "as far as ... is concerned"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "suf"
+          ],
+          "misc": [
+            "fam",
+            "col",
+            "dated"
+          ],
+          "info": [
+            "used as a form of address with names, work titles, etc. to denote either light disdain or familiarity"
+          ],
+          "gloss": [
+            "Mr.",
+            "Ms.",
+            "Mrs."
+          ]
+        }
+      ]
+    },
+    "meaning": "1. -ical, -ive, -al, -ic, -y<br>\n2. -like, -ish, -sort of, -kind of<br>\n3. (something) like, along the lines of<br>\n4. -wise, in terms of, for, from the viewpoint of, from a ... standpoint, as far as ... is concerned<br>\n5. Mr., Ms., Mrs.",
+    "notes": "形容動詞、接尾辞",
+    "pitch": null
+  },
+  {
+    "word": "憂鬱",
+    "reading": "ゆううつ",
+    "entry": {
+      "kanji": [
+        {
+          "text": "憂鬱",
+          "common": true
+        },
+        {
+          "text": "幽鬱",
+          "tags": [
+            "rK"
+          ]
+        },
+        {
+          "text": "悒鬱",
+          "tags": [
+            "rK"
+          ]
+        },
+        {
+          "text": "憂うつ",
+          "tags": [
+            "sK"
+          ]
+        },
+        {
+          "text": "憂欝",
+          "tags": [
+            "sK"
+          ]
+        },
+        {
+          "text": "幽欝",
+          "tags": [
+            "sK"
+          ]
+        },
+        {
+          "text": "悒欝",
+          "tags": [
+            "sK"
+          ]
+        }
+      ],
+      "kana": [
+        {
+          "text": "ゆううつ",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "n",
+            "adj-na"
+          ],
+          "gloss": [
+            "depression",
+            "melancholy",
+            "dejection",
+            "gloom",
+            "despondency"
+          ]
+        }
+      ]
+    },
+    "meaning": "depression, melancholy, dejection, gloom, despondency",
+    "notes": "形容動詞",
+    "pitch": {
+      "reading": "ゆううつ",
+      "hl": "LHHHH",
+      "html": "ゆ<span style=\"display:inline-block;position:relative;\"><span style=\"display:inline;\">ううつ</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;\"></span></span>"
+    }
+  },
+  {
+    "word": "出発",
+    "reading": "しゅっぱつ",
+    "entry": {
+      "kanji": [
+        {
+          "text": "出発",
+          "common": true
+        }
+      ],
+      "kana": [
+        {
+          "text": "しゅっぱつ",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "n",
+            "vs",
+            "vi"
+          ],
+          "gloss": [
+            "departure",
+            "leaving",
+            "setting off"
+          ]
+        }
+      ]
+    },
+    "meaning": "departure, leaving, setting off",
+    "notes": "自動詞（する）",
+    "pitch": {
+      "reading": "しゅっぱつ",
+      "hl": "LlHHHH",
+      "html": "しゅ<span style=\"display:inline-block;position:relative;\"><span style=\"display:inline;\">っぱつ</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;\"></span></span>"
+    }
+  },
+  {
+    "word": "掛ける",
+    "reading": "かける",
+    "entry": {
+      "kanji": [
+        {
+          "text": "掛ける",
+          "common": true
+        },
+        {
+          "text": "懸ける"
+        }
+      ],
+      "kana": [
+        {
+          "text": "かける",
+          "common": true
+        }
+      ],
+      "sense": [
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "壁にかける"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to hang up (e.g. a coat, a picture on the wall)",
+            "to let hang",
+            "to suspend (from)",
+            "to hoist (e.g. sail)",
+            "to raise (e.g. flag)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to put on (e.g. a blanket)",
+            "to put on top of",
+            "to cover",
+            "to lay",
+            "to spread"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "眼鏡を掛ける"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to put on (glasses, etc.)",
+            "to wear (a necklace, etc.)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "電話を掛ける"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to make (a call)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "時間を掛ける"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to spend (time, money)",
+            "to expend",
+            "to use"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "塩をかける"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to pour (liquid) onto",
+            "to sprinkle (powder or spices) onto",
+            "to splash",
+            "to throw (e.g. water) onto"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to turn on (an engine, radio, etc.)",
+            "to set (a dial, alarm clock, etc.)",
+            "to put on (a DVD, song, etc.)",
+            "to use (a device, implement, etc.)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "迷惑を掛ける"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to cause (someone inconvenience, trouble, etc.)",
+            "to burden (someone)",
+            "to impose"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "field": [
+            "math"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to multiply (arithmetic operation)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "鍵を掛ける"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to secure (e.g. lock)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "腰を掛ける"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to take a seat",
+            "to sit",
+            "to rest (something on something else)",
+            "to support (something on something else)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "info": [
+            "also as 繋ける"
+          ],
+          "gloss": [
+            "to bind"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "賭ける",
+              "かける"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to wager",
+            "to bet",
+            "to risk",
+            "to stake",
+            "to gamble"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to put an effect (spell, anaesthetic, etc.) on"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to hold (a play, festival, etc.)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to hold an emotion for (pity, hope, etc.)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "裁判に掛ける"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to argue (in court)",
+            "to deliberate (in a meeting)",
+            "to present (e.g. idea to a conference, etc.)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to increase further"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to catch (in a trap, etc.)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to set atop"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to erect (a makeshift building)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "保険を掛ける",
+              1
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to apply (insurance)"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "v1",
+            "vt"
+          ],
+          "related": [
+            [
+              "掛詞"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "gloss": [
+            "to pun (on a word)",
+            "to use (a word) as a pivot word",
+            "to play on words"
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "suf",
+            "v1"
+          ],
+          "related": [
+            [
+              "話し掛ける",
+              2
+            ],
+            [
+              "治りかける"
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "info": [
+            "after -masu stem of verb"
+          ],
+          "gloss": [
+            "to be partway doing ...",
+            "to begin (but not complete) ...",
+            "to be about to ..."
+          ]
+        },
+        {
+          "partOfSpeech": [
+            "suf",
+            "v1"
+          ],
+          "related": [
+            [
+              "話し掛ける",
+              1
+            ]
+          ],
+          "misc": [
+            "uk"
+          ],
+          "info": [
+            "after -masu stem of verb; indicates an action is being directed to someone"
+          ],
+          "gloss": [
+            "to address (someone)",
+            "to direct (something, to someone)",
+            "to do (something, to someone)"
+          ]
+        }
+      ]
+    },
+    "meaning": "1. to hang up (e.g. a coat, a picture on the wall), to let hang, to suspend (from), to hoist (e.g. sail), to raise (e.g. flag)<br>\n2. to put on (e.g. a blanket), to put on top of, to cover, to lay, to spread<br>\n3. to put on (glasses, etc.), to wear (a necklace, etc.)<br>\n4. to make (a call)<br>\n5. to spend (time, money), to expend, to use<br>\n6. to pour (liquid) onto, to sprinkle (powder or spices) onto, to splash, to throw (e.g. water) onto<br>\n7. to turn on (an engine, radio, etc.), to set (a dial, alarm clock, etc.), to put on (a DVD, song, etc.), to use (a device, implement, etc.)<br>\n8. to cause (someone inconvenience, trouble, etc.), to burden (someone), to impose<br>\n9. to multiply (arithmetic operation)<br>\n10. to secure (e.g. lock)<br>\n11. to take a seat, to sit, to rest (something on something else), to support (something on something else)<br>\n12. to bind<br>\n13. to wager, to bet, to risk, to stake, to gamble<br>\n14. to put an effect (spell, anaesthetic, etc.) on<br>\n15. to hold (a play, festival, etc.)<br>\n16. to hold an emotion for (pity, hope, etc.)<br>\n17. to argue (in court), to deliberate (in a meeting), to present (e.g. idea to a conference, etc.)<br>\n18. to increase further<br>\n19. to catch (in a trap, etc.)<br>\n20. to set atop<br>\n21. to erect (a makeshift building)<br>\n22. to apply (insurance)<br>\n23. to pun (on a word), to use (a word) as a pivot word, to play on words<br>\n24. to be partway doing ..., to begin (but not complete) ..., to be about to ...<br>\n25. to address (someone), to direct (something, to someone), to do (something, to someone)",
+    "notes": "他動詞、接尾辞",
+    "pitch": {
+      "reading": "かける",
+      "hl": "LHLL",
+      "html": "か<span style=\"display:inline-block;position:relative;padding-right:0.1em;margin-right:0.1em;\"><span style=\"display:inline;\">け</span><span style=\"border-color:currentColor;display:block;user-select:none;pointer-events:none;position:absolute;top:0.1em;left:0;right:0;height:0;border-top-width:0.1em;border-top-style:solid;right:-0.1em;height:0.4em;border-right-width:0.1em;border-right-style:solid;\"></span></span>る"
+    }
+  }
+]
