@@ -47,8 +47,4 @@ class KaishiTest {
         assertEquals("", noPitch.fields[Kaishi.FREQUENCY])
         assertEquals(setOf(Kaishi.PITCH_ACCENT_UNAVAILABLE_TAG, Kaishi.GRAMMAR_TAG), noPitch.tags)
     }
-
-    @Test fun stripRuby() {
-        assertEquals("様になる", Kaishi.stripRuby("<ruby>様<rt>よう</rt></ruby>になる"))
-    }
 }

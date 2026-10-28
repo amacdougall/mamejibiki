@@ -9,8 +9,8 @@ import com.ichi2.anki.api.AddContentApi
 /** What happened when a note was sent. */
 sealed interface SendResult {
     data class Added(val word: String) : SendResult
-    /** A Kaishi note with the same (word, reading) already exists, anywhere in the collection. */
-    data class Duplicate(val word: String, val noteId: Long) : SendResult
+    /** A Kaishi note for the same word already exists, anywhere in the collection ([AnkiIndex]). */
+    data class Duplicate(val word: String) : SendResult
     data class Failed(val message: String) : SendResult
 }
 
@@ -24,9 +24,13 @@ class AnkiDroid(private val context: Context) {
     fun hasPermission(): Boolean =
         context.checkSelfPermission(AddContentApi.READ_WRITE_PERMISSION) == PackageManager.PERMISSION_GRANTED
 
-    fun send(note: KaishiNote): SendResult {
+    /**
+     * Adds [note] unless a note matching [key] already exists, checked against
+     * [known], or a freshly read index when that's null.
+     */
+    fun send(note: KaishiNote, key: AnkiKey, known: AnkiIndex?): SendResult {
         val result = try {
-            sendOrThrow(note)
+            sendOrThrow(note, key, known)
         } catch (e: Exception) {
             Log.i("Anki", "Send failed", e)
             SendResult.Failed("AnkiDroid error: ${e.message}")
@@ -35,7 +39,7 @@ class AnkiDroid(private val context: Context) {
         return result
     }
 
-    private fun sendOrThrow(note: KaishiNote): SendResult {
+    private fun sendOrThrow(note: KaishiNote, key: AnkiKey, known: AnkiIndex?): SendResult {
         if (!isInstalled()) return SendResult.Failed("AnkiDroid isn't installed")
         val api = AddContentApi(context)
         val modelId = api.modelList?.entries?.firstOrNull { it.value == Kaishi.NOTE_TYPE }?.key
@@ -45,36 +49,32 @@ class AnkiDroid(private val context: Context) {
         }
         val deckId = api.deckList?.entries?.firstOrNull { it.value == DECK }?.key
             ?: return SendResult.Failed("AnkiDroid has no deck named $DECK")
-        duplicate(note)?.let { return SendResult.Duplicate(note.word, it) }
+        if (key in (known ?: index())) return SendResult.Duplicate(note.word)
         api.addNote(modelId, deckId, note.fields.toTypedArray(), note.tags)
             ?: return SendResult.Failed("AnkiDroid didn't add the note")
         return SendResult.Added(note.word)
     }
 
     /**
-     * The id of a Kaishi note with the same Word (ruby furigana stripped) and
-     * Word Reading in any deck, like anki-scripts' DedupChecker.
+     * Every Kaishi note's Word and Word Reading, in any deck, like anki-scripts'
+     * DedupChecker. Reads every Kaishi note: over a second for 9,000 notes.
      */
-    private fun duplicate(note: KaishiNote): Long? {
-        val search = "\"note:${Kaishi.NOTE_TYPE}\" \"Word Reading:${searchLiteral(note.reading)}\""
-        val projection = arrayOf(FlashCardsContract.Note._ID, FlashCardsContract.Note.FLDS)
-        context.contentResolver.query(FlashCardsContract.Note.CONTENT_URI, projection, search, null, null)?.use { c ->
+    fun index(): AnkiIndex {
+        val start = System.currentTimeMillis()
+        val notes = ArrayList<Pair<String, String>>()
+        val projection = arrayOf(FlashCardsContract.Note.FLDS)
+        context.contentResolver.query(FlashCardsContract.Note.CONTENT_URI, projection, "\"note:${Kaishi.NOTE_TYPE}\"", null, null)?.use { c ->
             while (c.moveToNext()) {
-                val fields = c.getString(1).split('\u001f')
-                if (Kaishi.stripRuby(fields[Kaishi.WORD]) == note.word && fields.getOrNull(Kaishi.WORD_READING) == note.reading) {
-                    return c.getLong(0)
-                }
+                val fields = c.getString(0).split('\u001f')
+                notes += fields[Kaishi.WORD] to fields.getOrElse(Kaishi.WORD_READING) { "" }
             }
         }
-        return null
+        return AnkiIndex(notes).also { Log.i("Anki", "Indexed ${notes.size} notes in ${System.currentTimeMillis() - start} ms") }
     }
 
     companion object {
         /** The deck notes are added to. Hardcoded until there's a settings screen. */
         const val DECK = "色んな言葉"
         const val PERMISSION = AddContentApi.READ_WRITE_PERMISSION
-
-        /** Escapes Anki search wildcards and quotes. */
-        private fun searchLiteral(text: String) = text.replace(Regex("""[\\"*_:]""")) { "\\" + it.value }
     }
 }

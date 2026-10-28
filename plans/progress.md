@@ -17,7 +17,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 2 | `*` wildcard (`A*`, `*A`, `*A*`, `A*B`) | ✅ | `search/Wildcard.kt` (+ `WildcardTest`) and the pattern search in `search/Search.kt` and `pipeline/query.rb`. The kanji block's "See more" searches `*<kanji>*`. |
 | 2 | Deinflection (+ "past, negative" label) | ✅ | The user tried conjugated words on the phone. |
 | 2 | Result rows | ✅ | Forms with match highlight and prefix-remainder shade, rare forms greyed, common/する badges, numbered collapsible senses, pitch accent on readings, tap to open. |
-| 2 | Long-press menu (Copy, Send to AnkiDroid) | ✅ | |
+| 2 | Long-press menu (Copy, Send to AnkiDroid) | ✅ | Shows a disabled "Exists in AnkiDroid" for words already in AnkiDroid. |
 | 3 | Entry page header and tabs | ✅ | |
 | 4 | Word tab | ✅ | Headword, other forms, readings with all pitch patterns, senses grouped by part of speech under Japanese label headers (する folded into 他動詞（する）), numbered senses with their own labels, notes and tappable See also / Antonym links. |
 | 5 | Kanji tab, kanji pages, practice canvas | ✅ | The Kanji tab, kanji pages, header (sans, serif and pen-stroke tiles) with reading highlight, component tree, Entries with "See more", Contained in with "More", tap-the-tile collapsing, long-press Copy on any kanji, and the practice canvas (`practice/`, `ui/PracticeCanvas.kt`). The user uses the practice canvas by hand on the phone, and it works as intended. |
@@ -127,3 +127,9 @@ One entry per work session, newest last.
 ### 2026-10-28, session 12 (continued): three kanji tiles
 - The kanji block header shows the kanji in three tiles (UI spec §5 Header): sans-serif, serif (Noto Serif CJK, present on the phone) and KanjiVG's pen strokes (`KanjiStrokes`). Readings and meanings moved below the tiles.
 - Checked on the device: 陽光 and 餅屋's Kanji tabs. The user confirmed the layout matches their intent. Tapping the pen tile collapses the block. A kanji with no KanjiVG strokes (empty third place) wasn't viewed.
+
+### 2026-10-28, session 12 (continued): Exists in AnkiDroid
+- The long-press menu shows a disabled "Exists in AnkiDroid" instead of Send for words already in AnkiDroid (UI spec §2, §8 Existing notes). `anki/AnkiIndex.kt` (+ `AnkiIndexTest`) holds every Kaishi note, loaded in the background on each `onResume` and updated after each send. Sends check the same index.
+- Matching rules come from anki-scripts and from scanning the user's collection backup (`../anki-scripts/backups/`, 8,980 Kaishi notes): 577 ruby Words, 83 readings with katakana inside, 11 `〜` affixes, 5 `(する)` suffixes, 4 empty readings, 1 trailing space. No stray HTML or bracket furigana in Word or Reading at present.
+- A note matches any written form of the same reading (掛ける covers 懸ける). That's broader than anki-scripts' DedupChecker, which compares the exact Word.
+- On the device: the index loads 9,115 notes in about 1.2 s. 食べる and つまらない (stored as `<ruby>詰<rt>つ</rt></ruby>まらない`) show Exists. 食らう shows Send. A send hasn't been tried since the change.

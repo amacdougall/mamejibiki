@@ -95,6 +95,7 @@ fun SearchScreen(
     dictionary: Dictionary?,
     onOpen: (SearchResult) -> Unit,
     onSend: (SearchResult) -> Unit,
+    inAnki: (SearchResult) -> Boolean,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -175,6 +176,7 @@ fun SearchScreen(
                         },
                         onCopy = { copyText(context, result.entry.text(result.entry.headword(result.match?.form))) },
                         onSend = { onSend(result) },
+                        inAnki = { inAnki(result) },
                     )
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
@@ -195,7 +197,10 @@ private fun EmptyHelp() {
     }
 }
 
-/** A result row. Tap opens the entry; long-press shows Copy and Send to AnkiDroid (UI spec §2). */
+/**
+ * A result row. Tap opens the entry; long-press shows Copy and Send to
+ * AnkiDroid, or a disabled "Exists in AnkiDroid" when [inAnki] (UI spec §2).
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ResultRow(
@@ -205,6 +210,7 @@ private fun ResultRow(
     onClick: () -> Unit,
     onCopy: () -> Unit,
     onSend: () -> Unit,
+    inAnki: () -> Boolean,
 ) {
     var menu by remember { mutableStateOf(false) }
     Box {
@@ -219,10 +225,14 @@ private fun ResultRow(
                 menu = false
                 onCopy()
             })
-            DropdownMenuItem(text = { Text("Send to AnkiDroid") }, onClick = {
-                menu = false
-                onSend()
-            })
+            if (inAnki()) {
+                DropdownMenuItem(text = { Text("Exists in AnkiDroid") }, onClick = {}, enabled = false)
+            } else {
+                DropdownMenuItem(text = { Text("Send to AnkiDroid") }, onClick = {
+                    menu = false
+                    onSend()
+                })
+            }
         }
     }
 }

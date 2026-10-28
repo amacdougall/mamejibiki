@@ -41,7 +41,7 @@ The app opens straight into the search field with the keyboard up. Results updat
 - **Tap** a row to open the word.
 - **Long-press** a row for:
   - **Copy:** copies the spelling you matched.
-  - **Send to AnkiDroid** (see below).
+  - **Send to AnkiDroid** (see below), or a greyed-out **Exists in AnkiDroid** when the word is already in your collection.
 
 ### Word page
 
@@ -77,6 +77,8 @@ Back (the ← arrow or the system gesture) steps through everything you've opene
 ### Send to AnkiDroid
 
 Long-press a result and choose **Send to AnkiDroid** to add the word as a note. The first time, Android asks for AnkiDroid's database permission. A snackbar confirms "Added 〜 to 色んな言葉", or says the word is already in Anki.
+
+The app knows which words you already have: whenever it comes to the foreground, it reads every Kaishi 1.5k note in AnkiDroid (in any deck) in the background. A note counts as the same word when its reading matches and its Word is any spelling of the word, ignoring `<ruby>` furigana, stray HTML, spaces, `(する)` and `〜` marks. For example, a つまらない note saved as `<ruby>詰<rt>つ</rt></ruby>まらない` counts. Words you send are added to that list straight away.
 
 The note fills Word, Word Reading, Word Meaning, grammar Notes (in Japanese), Pitch Accent (as HTML) and Frequency (the JPDB rank). It's tagged so the owner's [anki-scripts](https://github.com/amacdougall/anki-scripts) skip the steps already done. Furigana, sentences, audio and the picture are left for those scripts to add.
 

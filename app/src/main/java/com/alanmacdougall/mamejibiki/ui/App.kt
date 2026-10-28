@@ -18,10 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.alanmacdougall.mamejibiki.anki.AnkiDroid
+import com.alanmacdougall.mamejibiki.anki.AnkiIndex
 import com.alanmacdougall.mamejibiki.anki.SendResult
 import com.alanmacdougall.mamejibiki.data.Dictionary
 import com.alanmacdougall.mamejibiki.search.SearchResult
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -40,6 +42,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     val snackbar = SnackbarHostState()
     val anki = AnkiDroid(application)
+    /** Every Kaishi note in AnkiDroid, for the long-press menu's "Exists in AnkiDroid". Null until loaded or without permission. */
+    var ankiIndex by mutableStateOf<AnkiIndex?>(null)
+        private set
 
     init {
         // Open on IO but publish on the main thread, so the state write can't
@@ -69,11 +74,35 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Reloads [ankiIndex] when AnkiDroid's permission is granted. Called each
+     * time the app comes to the foreground, since notes may have been added or
+     * deleted in AnkiDroid meanwhile.
+     */
+    fun refreshAnki() {
+        if (ankiLoad?.isActive == true || !anki.isInstalled() || !anki.hasPermission()) return
+        ankiLoad = viewModelScope.launch {
+            val index = withContext(Dispatchers.IO) { runCatching { anki.index() }.getOrNull() }
+            if (index != null) ankiIndex = index
+        }
+    }
+
+    private var ankiLoad: Job? = null
+
+    /** Whether a note for this result's word is already in AnkiDroid, as far as [ankiIndex] knows. */
+    fun inAnki(result: SearchResult): Boolean = ankiIndex?.let { AnkiIndex.key(result.entry, result.match?.form) in it } ?: false
+
     /** Sends a result's entry to AnkiDroid as a Kaishi 1.5k note (UI spec §8). Needs AnkiDroid's permission. */
     fun sendToAnki(result: SearchResult) {
         val d = dictionary ?: return
         viewModelScope.launch {
-            val sent = withContext(Dispatchers.IO) { anki.send(d.kaishiNote(result.entry, result.match?.form)) }
+            val key = AnkiIndex.key(result.entry, result.match?.form)
+            val note = withContext(Dispatchers.IO) { d.kaishiNote(result.entry, result.match?.form) }
+            val sent = withContext(Dispatchers.IO) { anki.send(note, key, ankiIndex) }
+            if (sent !is SendResult.Failed) {
+                val index = ankiIndex
+                if (index != null) ankiIndex = index.plus(note.word, note.reading) else refreshAnki()
+            }
             snackbar.currentSnackbarData?.dismiss()
             when (sent) {
                 is SendResult.Added -> snackbar.showSnackbar("Added ${sent.word} to ${AnkiDroid.DECK}")
@@ -96,6 +125,7 @@ fun App(model: AppModel) {
                         model.dictionary,
                         onOpen = model::openEntry,
                         onSend = rememberSendToAnki(model),
+                        inAnki = model::inAnki,
                     )
                 }
                 is EntryState -> key(screen) {

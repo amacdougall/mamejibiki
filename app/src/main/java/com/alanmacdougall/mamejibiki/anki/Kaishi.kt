@@ -87,9 +87,6 @@ object Kaishi {
         }
     }
 
-    /** CardCreator.strip_ruby_tags: the Word field without its <ruby> furigana, for duplicate checks. */
-    fun stripRuby(text: String): String = text.replace(Regex("<rt>[^<]*</rt>"), "").replace(Regex("</?ruby>"), "")
-
     private val COMBINERS = "ゃゅょャュョぁぃぅぇぉァィゥェォゎヮゕゖヵヶ".toSet()
 
     /** PitchAccentRenderer.to_kaishi_html: the reading in hiragana, each high run under an overline. */
