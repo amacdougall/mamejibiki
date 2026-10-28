@@ -10,27 +10,27 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 |---|---|---|---|
 | — | Toolchain, device loop, project skeleton | ✅ | See `2026-10-26-dev-environment.md`. |
 | 1 | Navigation and back stack | ✅ | `AppModel` (a ViewModel) holds the stack. Each screen keeps a state object, so back restores the query, results, scroll position, tab and expanded practice areas. Survives configuration changes. See `architecture.md` §2. |
-| 1 | Settings screen | ⬜ | Not needed yet: the AnkiDroid connection is hardcoded. |
+| 1 | Settings screen | ✅ | Anki deck checkboxes only. Opened by the gear beside the search field. |
 | 2 | Search screen layout | ✅ | The field is focused with the cursor at the end whenever the screen is shown, except a See also search's first showing. Paste and clear buttons. Empty-state help. |
 | 2 | Live search, including IME composition | ✅ | Confirmed on the device. |
 | 2 | Prefix, `?` wildcard, fuzzy, English | ✅ | `?` and `？` are both wildcards. Whole-word fuzzy matches rank right after exact matches. English search uses three tiers and ranks first-sense matches higher. |
 | 2 | `*` wildcard (`A*`, `*A`, `*A*`, `A*B`) | ✅ | `search/Wildcard.kt` (+ `WildcardTest`) and the pattern search in `search/Search.kt` and `pipeline/query.rb`. The kanji block's "See more" searches `*<kanji>*`. |
 | 2 | Deinflection (+ "past, negative" label) | ✅ | The user tried conjugated words on the phone. |
 | 2 | Result rows | ✅ | Forms with match highlight and prefix-remainder shade, rare forms greyed, common/する badges, numbered collapsible senses, pitch accent on readings, tap to open. |
-| 2 | Long-press menu (Copy, Send to AnkiDroid) | ✅ | Shows a disabled "Exists in AnkiDroid" for words already in AnkiDroid. |
+| 2 | Long-press menu (Copy, Send to 〜) | ✅ | One Send item per deck checked in Settings. Shows a disabled "Exists in AnkiDroid" for words already in AnkiDroid. |
 | 3 | Entry page header and tabs | ✅ | |
 | 4 | Word tab | ✅ | Headword, other forms, readings with all pitch patterns, senses grouped by part of speech under Japanese label headers (する folded into 他動詞（する）), numbered senses with their own labels, notes and tappable See also / Antonym links. |
 | 5 | Kanji tab, kanji pages, practice canvas | ✅ | The Kanji tab, kanji pages, header (sans, serif and pen-stroke tiles) with reading highlight, component tree, Entries with "See more", Contained in with "More", tap-the-tile collapsing, long-press Copy on any kanji, and the practice canvas (`practice/`, `ui/PracticeCanvas.kt`). The user uses the practice canvas by hand on the phone, and it works as intended. |
 | 6 | Forms tab and conjugation engine | ✅ | `conjugation/` (`architecture.md` §5). Unit tests check the 引く and 高い tables cell by cell, plus each class's distinctive cells. Checked on the device: 引く, 食べる, 来る, 勉強, 高い, いい. |
 | 7 | Pitch accent rendering | ✅ | `pitch/Pitch.kt` (parsing, unit-tested) and `ui/PitchText.kt` (drawing). |
-| 8 | Send to AnkiDroid | ✅ | Fields checked against golden vectors from anki-scripts' code. On the device: the permission prompt, adding a note (槍, checked by the user in AnkiDroid and desktop Anki), and the duplicate path (食べる). |
+| 8 | Send to AnkiDroid | ✅ | Fields checked against golden vectors from anki-scripts' code. On the device: the permission prompt, adding a note (槍, checked by the user in AnkiDroid and desktop Anki), and the duplicate path (食べる). Sends to the deck chosen in the menu (Settings). |
 | 9 | Database: words half | ✅ | JMdict entries, Japanese and English search keys, JPDB frequency, Wadoku pitch, JmdictFurigana, tag descriptions. `pipeline/README.md`. |
 | 9 | Japanese grammar-label table | ✅ | `pipeline/grammar_labels.tsv` → `tags.label_ja`, covering all 266 JMdict codes. The Anki Notes field's combining rules (§8) are separate and not built yet. |
 | 9 | Database: kanji half | ✅ | `kanji` (KANJIDIC2 + JLPT N levels), `kanji_vg` (strokes and component trees), `kanji_parts` (reverse index). `pipeline/README.md`. |
 
 ## Next task
 
-None chosen. Everything specified is built except the settings screen (§1), which isn't needed while the AnkiDroid connection is hardcoded. Ask the user what comes next.
+None chosen. Everything specified is built. Ask the user what comes next.
 
 ## Later tasks
 
@@ -133,3 +133,9 @@ One entry per work session, newest last.
 - Matching rules come from anki-scripts and from scanning the user's collection backup (`../anki-scripts/backups/`, 8,980 Kaishi notes): 577 ruby Words, 83 readings with katakana inside, 11 `〜` affixes, 5 `(する)` suffixes, 4 empty readings, 1 trailing space. No stray HTML or bracket furigana in Word or Reading at present.
 - A note matches any written form of the same reading (掛ける covers 懸ける). That's broader than anki-scripts' DedupChecker, which compares the exact Word.
 - On the device: the index loads 9,115 notes in about 1.2 s. 食べる and つまらない (stored as `<ruby>詰<rt>つ</rt></ruby>まらない`) show Exists. 食らう shows Send. A send hasn't been tried since the change.
+
+### 2026-10-28, session 12 (continued): choosing decks
+- Built the settings screen (UI spec §1) with one section, Anki decks: AnkiDroid's decks with checkboxes, saved by name in SharedPreferences (`data/Settings.kt`). 色んな言葉 is checked by default. A gear beside the search field opens it.
+- The long-press menu has a "Send to <deck>" item per checked deck (UI spec §2). `AnkiDroid.send` takes the deck, and the snackbar names it.
+- On the device: the gear and Settings screen (the deck list loaded, with 色んな言葉 checked). Checked 呪術廻戦, which stays checked on the user's phone. 食らう's menu showed "Send to 呪術廻戦" and "Send to 色んな言葉". No send was made, to keep test notes out of the user's collection.
+- The user tested sending to a chosen deck on the phone and confirmed it works. The permission button wasn't seen, since the permission was already granted.

@@ -31,6 +31,7 @@ The app opens straight into the search field with the keyboard up. Results updat
   - `*` matches any run of characters. `*食` finds words ending in 食 (夕食, 朝食…), `*食*` finds words containing 食, and `食*会` finds words that start with 食 and end with 会.
 - **Ranking:** exact matches come first, then whole-word fuzzy matches, then conjugated-form matches, then prefix matches. Within each group, common and frequent words come first (by the JPDB frequency list).
 - **Paste and clear:** with the field empty, the clipboard button pastes and searches. Otherwise the ✕ clears the field.
+- **Settings:** the gear beside the search field opens Settings, where you choose which Anki decks to send words to.
 
 ### Result rows
 
@@ -41,7 +42,7 @@ The app opens straight into the search field with the keyboard up. Results updat
 - **Tap** a row to open the word.
 - **Long-press** a row for:
   - **Copy:** copies the spelling you matched.
-  - **Send to AnkiDroid** (see below), or a greyed-out **Exists in AnkiDroid** when the word is already in your collection.
+  - **Send to 〜**, one item for each deck you've checked in Settings (see below), or a greyed-out **Exists in AnkiDroid** when the word is already in your collection.
 
 ### Word page
 
@@ -76,17 +77,19 @@ Back (the ← arrow or the system gesture) steps through everything you've opene
 
 ### Send to AnkiDroid
 
-Long-press a result and choose **Send to AnkiDroid** to add the word as a note. The first time, Android asks for AnkiDroid's database permission. A snackbar confirms "Added 〜 to 色んな言葉", or says the word is already in Anki.
+Long-press a result and choose a deck, e.g. **Send to 呪術廻戦**, to add the word there as a note. The first time, Android asks for AnkiDroid's database permission. A snackbar confirms "Added 〜 to 呪術廻戦", or says the word is already in Anki.
+
+**Choosing decks:** open Settings (the gear beside the search field) and check each deck you collect words for. The menu offers one Send item per checked deck. Until you choose, 色んな言葉 is checked.
 
 The app knows which words you already have: whenever it comes to the foreground, it reads every Kaishi 1.5k note in AnkiDroid (in any deck) in the background. A note counts as the same word when its reading matches and its Word is any spelling of the word, ignoring `<ruby>` furigana, stray HTML, spaces, `(する)` and `〜` marks. For example, a つまらない note saved as `<ruby>詰<rt>つ</rt></ruby>まらない` counts. Words you send are added to that list straight away.
 
 The note fills Word, Word Reading, Word Meaning, grammar Notes (in Japanese), Pitch Accent (as HTML) and Frequency (the JPDB rank). It's tagged so the owner's [anki-scripts](https://github.com/amacdougall/anki-scripts) skip the steps already done. Furigana, sentences, audio and the picture are left for those scripts to add.
 
-> **The connection is hardcoded** to the owner's setup: note type **Kaishi 1.5k** (14 fields in a fixed order) and deck **色んな言葉**. If either is missing, the send fails with a message. To use a different deck, change `DECK` in `app/src/main/java/com/alanmacdougall/mamejibiki/anki/AnkiDroid.kt`. Any other note type needs code changes in `anki/Kaishi.kt`.
+> **The note type is hardcoded** to the owner's setup: **Kaishi 1.5k**, with 14 fields in a fixed order. If it's missing, the send fails with a message. Any other note type needs code changes in `anki/Kaishi.kt`.
 
 ### Not included
 
-The app has no favourites, word lists, quizzes, radical search, example sentences, text-to-speech, romaji input or settings screen.
+The app has no favourites, word lists, quizzes, radical search, example sentences, text-to-speech, or romaji input. Settings holds only the Anki deck list.
 
 ## Getting started
 

@@ -8,7 +8,7 @@ import com.ichi2.anki.api.AddContentApi
 
 /** What happened when a note was sent. */
 sealed interface SendResult {
-    data class Added(val word: String) : SendResult
+    data class Added(val word: String, val deck: String) : SendResult
     /** A Kaishi note for the same word already exists, anywhere in the collection ([AnkiIndex]). */
     data class Duplicate(val word: String) : SendResult
     data class Failed(val message: String) : SendResult
@@ -24,13 +24,16 @@ class AnkiDroid(private val context: Context) {
     fun hasPermission(): Boolean =
         context.checkSelfPermission(AddContentApi.READ_WRITE_PERMISSION) == PackageManager.PERMISSION_GRANTED
 
+    /** AnkiDroid's deck names, sorted, or null when they can't be read. */
+    fun decks(): List<String>? = runCatching { AddContentApi(context).deckList?.values?.sorted() }.getOrNull()
+
     /**
-     * Adds [note] unless a note matching [key] already exists, checked against
-     * [known], or a freshly read index when that's null.
+     * Adds [note] to [deck] unless a note matching [key] already exists,
+     * checked against [known], or a freshly read index when that's null.
      */
-    fun send(note: KaishiNote, key: AnkiKey, known: AnkiIndex?): SendResult {
+    fun send(note: KaishiNote, key: AnkiKey, known: AnkiIndex?, deck: String): SendResult {
         val result = try {
-            sendOrThrow(note, key, known)
+            sendOrThrow(note, key, known, deck)
         } catch (e: Exception) {
             Log.i("Anki", "Send failed", e)
             SendResult.Failed("AnkiDroid error: ${e.message}")
@@ -39,7 +42,7 @@ class AnkiDroid(private val context: Context) {
         return result
     }
 
-    private fun sendOrThrow(note: KaishiNote, key: AnkiKey, known: AnkiIndex?): SendResult {
+    private fun sendOrThrow(note: KaishiNote, key: AnkiKey, known: AnkiIndex?, deck: String): SendResult {
         if (!isInstalled()) return SendResult.Failed("AnkiDroid isn't installed")
         val api = AddContentApi(context)
         val modelId = api.modelList?.entries?.firstOrNull { it.value == Kaishi.NOTE_TYPE }?.key
@@ -47,12 +50,12 @@ class AnkiDroid(private val context: Context) {
         if (api.getFieldList(modelId)?.toList() != Kaishi.FIELD_NAMES) {
             return SendResult.Failed("${Kaishi.NOTE_TYPE}'s fields aren't the expected 14")
         }
-        val deckId = api.deckList?.entries?.firstOrNull { it.value == DECK }?.key
-            ?: return SendResult.Failed("AnkiDroid has no deck named $DECK")
+        val deckId = api.deckList?.entries?.firstOrNull { it.value == deck }?.key
+            ?: return SendResult.Failed("AnkiDroid has no deck named $deck")
         if (key in (known ?: index())) return SendResult.Duplicate(note.word)
         api.addNote(modelId, deckId, note.fields.toTypedArray(), note.tags)
             ?: return SendResult.Failed("AnkiDroid didn't add the note")
-        return SendResult.Added(note.word)
+        return SendResult.Added(note.word, deck)
     }
 
     /**
@@ -73,8 +76,6 @@ class AnkiDroid(private val context: Context) {
     }
 
     companion object {
-        /** The deck notes are added to. Hardcoded until there's a settings screen. */
-        const val DECK = "色んな言葉"
         const val PERMISSION = AddContentApi.READ_WRITE_PERMISSION
     }
 }

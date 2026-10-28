@@ -11,9 +11,11 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | File | Role |
 |---|---|
 | `MainActivity.kt` | Creates `AppModel`, then sets the Compose content to `App(model)`. |
-| `ui/App.kt` | `AppModel` (the back stack, the `Dictionary`, the snackbar, Send to AnkiDroid and the `AnkiIndex` of existing notes, reloaded by `MainActivity.onResume`), the `Screen` interface, and `App()`, which shows the top of the stack and handles system back. |
+| `ui/App.kt` | `AppModel` (the back stack, the `Dictionary`, the snackbar, Send to AnkiDroid, the enabled decks and AnkiDroid's deck list, and the `AnkiIndex` of existing notes, reloaded by `MainActivity.onResume`), the `Screen` interface, and `App()`, which shows the top of the stack and handles system back. |
 | `ui/SearchScreen.kt` | `SearchState` and the search screen: field, live search, result rows. `ResultRowContent` draws a row's forms, badges and collapsible senses; the caller holds the expanded flag (`SearchState.expanded`, `KanjiBlockState.expandedEntries`). |
 | `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Loads the Kanji tab's blocks the first time the tab is shown. |
+| `ui/SettingsScreen.kt` | `SettingsState` and the settings screen: the Anki deck checkboxes. |
+| `ui/SendToAnki.kt` | AnkiDroid's runtime permission, in front of `AppModel.sendToAnki` and for the Settings deck list. |
 | `ui/WordTab.kt` | The Word tab (UI spec §4). |
 | `ui/FormsTab.kt` | The Forms tab (UI spec §6), drawing `EntryState.formsTables`. |
 | `ui/KanjiBlock.kt` | `KanjiBlockState` (one loaded kanji block, with its "More" and practice-expanded flags) and the kanji display container (UI spec §5): header, Practice button, component tree, Entries (drawn with the search screen's `ResultRowContent`), Contained in, and the long-press Copy menu on each kanji. The header's pen-stroke tile is `KanjiStrokes` from `PracticeCanvas.kt`. Shared by the Kanji tab and the kanji page. |
@@ -22,6 +24,7 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `ui/PitchText.kt` | `PitchText`, a `Text` with pitch accent overlines drawn over chosen character ranges. |
 | `ui/Theme.kt`, `ui/Icons.kt` | Material 3 theme with Japanese-locale typography; icons missing from material-icons-core. |
 | `data/DictionaryDatabase.kt` | Copies the SQLite asset into app storage when its version stamp changes, and opens it read-only. |
+| `data/Settings.kt` | The user's settings in SharedPreferences: the enabled Anki deck names. |
 | `data/Dictionary.kt` | The only way screens read the database: search, per-reading pitch lookup, tag descriptions and Japanese labels, kanji data, KanjiVG trees and strokes, Contained in, the entries using a kanji, furigana. |
 | `data/Kanji.kt` | The kanji JSON models: `KanjiInfo` (KANJIDIC2), `KanjiNode` (component tree), `KanjiVg`. |
 | `data/Entry.kt` | The entry JSON model (`Entry`, `KanjiForm`, `KanaForm`, `Sense`), `FormRef`, and the headword rule (UI spec §2). |
@@ -32,7 +35,6 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `anki/Kaishi.kt` | The Kaishi 1.5k note's fields and tags, ported from anki-scripts (UI spec §8). Pure Kotlin. |
 | `anki/AnkiDroid.kt` | Adds notes through AnkiDroid's ContentProvider (note type, deck and duplicate checks) and reads every Kaishi note for the index. |
 | `anki/AnkiIndex.kt` | Existing Kaishi notes as normalised (reading → Words), and the key a result is checked with (UI spec §8 Existing notes). Pure Kotlin. |
-| `ui/SendToAnki.kt` | The runtime permission flow in front of `AppModel.sendToAnki`. |
 | `conjugation/Conjugation.kt` | The conjugation engine: the suffix rules, forward conjugation, and the Forms tab row definitions. |
 | `conjugation/Deinflector.kt` | The same rules run in reverse for deinflection search, and the English result labels. |
 | `kanji/WordKanji.kt` | The Kanji tab's kanji order and the reading-highlight matcher (UI spec §5). Pure Kotlin. |

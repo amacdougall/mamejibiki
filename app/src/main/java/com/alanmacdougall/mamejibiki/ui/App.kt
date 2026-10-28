@@ -21,6 +21,7 @@ import com.alanmacdougall.mamejibiki.anki.AnkiDroid
 import com.alanmacdougall.mamejibiki.anki.AnkiIndex
 import com.alanmacdougall.mamejibiki.anki.SendResult
 import com.alanmacdougall.mamejibiki.data.Dictionary
+import com.alanmacdougall.mamejibiki.data.Settings
 import com.alanmacdougall.mamejibiki.search.SearchResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -45,6 +46,26 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Every Kaishi note in AnkiDroid, for the long-press menu's "Exists in AnkiDroid". Null until loaded or without permission. */
     var ankiIndex by mutableStateOf<AnkiIndex?>(null)
         private set
+    /** AnkiDroid's deck names, sorted. Null until loaded or without permission. */
+    var ankiDecks by mutableStateOf<List<String>?>(null)
+        private set
+
+    private val settings = Settings(application)
+    /** The decks chosen in Settings, by name. */
+    var enabledDecks by mutableStateOf(settings.ankiDecks)
+        private set
+
+    /**
+     * The decks the long-press menu offers: the enabled ones AnkiDroid still
+     * has, in AnkiDroid's order. Before the deck list is loaded, every enabled deck.
+     */
+    val menuDecks: List<String>
+        get() = ankiDecks?.filter { it in enabledDecks } ?: enabledDecks.sorted()
+
+    fun setDeckEnabled(deck: String, enabled: Boolean) {
+        enabledDecks = if (enabled) enabledDecks + deck else enabledDecks - deck
+        settings.ankiDecks = enabledDecks
+    }
 
     init {
         // Open on IO but publish on the main thread, so the state write can't
@@ -66,6 +87,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun openKanji(literal: String, original: String?) = push(KanjiState(literal, original))
 
+    fun openSettings() = push(SettingsState())
+
     /** Shows a message in the snackbar, replacing any message already showing. */
     fun notify(message: String) {
         viewModelScope.launch {
@@ -75,13 +98,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Reloads [ankiIndex] when AnkiDroid's permission is granted. Called each
-     * time the app comes to the foreground, since notes may have been added or
-     * deleted in AnkiDroid meanwhile.
+     * Reloads [ankiDecks] and [ankiIndex] when AnkiDroid's permission is
+     * granted. Called each time the app comes to the foreground, since decks
+     * and notes may have changed in AnkiDroid meanwhile.
      */
     fun refreshAnki() {
         if (ankiLoad?.isActive == true || !anki.isInstalled() || !anki.hasPermission()) return
         ankiLoad = viewModelScope.launch {
+            withContext(Dispatchers.IO) { anki.decks() }?.let { ankiDecks = it }
             val index = withContext(Dispatchers.IO) { runCatching { anki.index() }.getOrNull() }
             if (index != null) ankiIndex = index
         }
@@ -92,20 +116,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Whether a note for this result's word is already in AnkiDroid, as far as [ankiIndex] knows. */
     fun inAnki(result: SearchResult): Boolean = ankiIndex?.let { AnkiIndex.key(result.entry, result.match?.form) in it } ?: false
 
-    /** Sends a result's entry to AnkiDroid as a Kaishi 1.5k note (UI spec §8). Needs AnkiDroid's permission. */
-    fun sendToAnki(result: SearchResult) {
+    /** Sends a result's entry to [deck] as a Kaishi 1.5k note (UI spec §8). Needs AnkiDroid's permission. */
+    fun sendToAnki(result: SearchResult, deck: String) {
         val d = dictionary ?: return
         viewModelScope.launch {
             val key = AnkiIndex.key(result.entry, result.match?.form)
             val note = withContext(Dispatchers.IO) { d.kaishiNote(result.entry, result.match?.form) }
-            val sent = withContext(Dispatchers.IO) { anki.send(note, key, ankiIndex) }
+            val sent = withContext(Dispatchers.IO) { anki.send(note, key, ankiIndex, deck) }
             if (sent !is SendResult.Failed) {
                 val index = ankiIndex
                 if (index != null) ankiIndex = index.plus(note.word, note.reading) else refreshAnki()
             }
             snackbar.currentSnackbarData?.dismiss()
             when (sent) {
-                is SendResult.Added -> snackbar.showSnackbar("Added ${sent.word} to ${AnkiDroid.DECK}")
+                is SendResult.Added -> snackbar.showSnackbar("Added ${sent.word} to ${sent.deck}")
                 is SendResult.Duplicate -> snackbar.showSnackbar("${sent.word} is already in Anki")
                 is SendResult.Failed -> snackbar.showSnackbar(sent.message)
             }
@@ -125,11 +149,26 @@ fun App(model: AppModel) {
                         model.dictionary,
                         onOpen = model::openEntry,
                         onSend = rememberSendToAnki(model),
+                        decks = model.menuDecks,
                         inAnki = model::inAnki,
+                        onOpenSettings = model::openSettings,
                     )
                 }
                 is EntryState -> key(screen) {
                     EntryScreen(screen, model.dictionary, onBack = model::pop, onSearch = model::search, onOpenKanji = model::openKanji, onOpenEntry = model::openEntry)
+                }
+                is SettingsState -> key(screen) {
+                    SettingsScreen(
+                        screen,
+                        installed = model.anki.isInstalled(),
+                        hasPermission = model.anki.hasPermission(),
+                        decks = model.ankiDecks,
+                        enabled = model.enabledDecks,
+                        onToggle = model::setDeckEnabled,
+                        onRequestPermission = rememberAnkiPermission(model),
+                        onRefresh = model::refreshAnki,
+                        onBack = model::pop,
+                    )
                 }
                 is KanjiState -> key(screen) {
                     KanjiScreen(

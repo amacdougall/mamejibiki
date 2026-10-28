@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -94,8 +95,10 @@ fun SearchScreen(
     state: SearchState,
     dictionary: Dictionary?,
     onOpen: (SearchResult) -> Unit,
-    onSend: (SearchResult) -> Unit,
+    onSend: (SearchResult, String) -> Unit,
+    decks: List<String>,
     inAnki: (SearchResult) -> Boolean,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -125,31 +128,36 @@ fun SearchScreen(
     }
 
     Column(modifier.fillMaxSize()) {
-        OutlinedTextField(
-            value = field,
-            onValueChange = { state.field = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp)
-                .focusRequester(focus),
-            placeholder = { Text("Search Japanese or English") },
-            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-            trailingIcon = {
-                if (field.text.isEmpty()) {
-                    IconButton(onClick = {
-                        val pasted = clipboardText(context)
-                        if (pasted.isNotBlank()) state.field = TextFieldValue(pasted, TextRange(pasted.length))
-                    }) { Icon(PasteIcon, contentDescription = "Paste") }
-                } else {
-                    IconButton(onClick = { state.field = TextFieldValue("") }) {
-                        Icon(Icons.Filled.Clear, contentDescription = "Clear")
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = field,
+                onValueChange = { state.field = it },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 12.dp, top = 8.dp, bottom = 8.dp)
+                    .focusRequester(focus),
+                placeholder = { Text("Search Japanese or English") },
+                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (field.text.isEmpty()) {
+                        IconButton(onClick = {
+                            val pasted = clipboardText(context)
+                            if (pasted.isNotBlank()) state.field = TextFieldValue(pasted, TextRange(pasted.length))
+                        }) { Icon(PasteIcon, contentDescription = "Paste") }
+                    } else {
+                        IconButton(onClick = { state.field = TextFieldValue("") }) {
+                            Icon(Icons.Filled.Clear, contentDescription = "Clear")
+                        }
                     }
-                }
-            },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            shape = RoundedCornerShape(28.dp),
-        )
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                shape = RoundedCornerShape(28.dp),
+            )
+            IconButton(onClick = onOpenSettings, Modifier.padding(horizontal = 4.dp)) {
+                Icon(Icons.Filled.Settings, contentDescription = "Settings")
+            }
+        }
 
         when {
             dictionary == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -175,7 +183,8 @@ fun SearchScreen(
                             onOpen(result)
                         },
                         onCopy = { copyText(context, result.entry.text(result.entry.headword(result.match?.form))) },
-                        onSend = { onSend(result) },
+                        onSend = { deck -> onSend(result, deck) },
+                        decks = decks,
                         inAnki = { inAnki(result) },
                     )
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -198,8 +207,9 @@ private fun EmptyHelp() {
 }
 
 /**
- * A result row. Tap opens the entry; long-press shows Copy and Send to
- * AnkiDroid, or a disabled "Exists in AnkiDroid" when [inAnki] (UI spec §2).
+ * A result row. Tap opens the entry; long-press shows Copy and a "Send to"
+ * item for each of [decks], or a disabled "Exists in AnkiDroid" when [inAnki]
+ * (UI spec §2).
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -209,7 +219,8 @@ private fun ResultRow(
     onToggle: () -> Unit,
     onClick: () -> Unit,
     onCopy: () -> Unit,
-    onSend: () -> Unit,
+    onSend: (String) -> Unit,
+    decks: List<String>,
     inAnki: () -> Boolean,
 ) {
     var menu by remember { mutableStateOf(false) }
@@ -225,13 +236,15 @@ private fun ResultRow(
                 menu = false
                 onCopy()
             })
-            if (inAnki()) {
-                DropdownMenuItem(text = { Text("Exists in AnkiDroid") }, onClick = {}, enabled = false)
-            } else {
-                DropdownMenuItem(text = { Text("Send to AnkiDroid") }, onClick = {
-                    menu = false
-                    onSend()
-                })
+            when {
+                inAnki() -> DropdownMenuItem(text = { Text("Exists in AnkiDroid") }, onClick = {}, enabled = false)
+                decks.isEmpty() -> DropdownMenuItem(text = { Text("No Anki decks chosen in Settings") }, onClick = {}, enabled = false)
+                else -> for (deck in decks) {
+                    DropdownMenuItem(text = { Text("Send to $deck") }, onClick = {
+                        menu = false
+                        onSend(deck)
+                    })
+                }
             }
         }
     }
