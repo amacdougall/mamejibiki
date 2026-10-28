@@ -139,3 +139,7 @@ One entry per work session, newest last.
 - The long-press menu has a "Send to <deck>" item per checked deck (UI spec §2). `AnkiDroid.send` takes the deck, and the snackbar names it.
 - On the device: the gear and Settings screen (the deck list loaded, with 色んな言葉 checked). Checked 呪術廻戦, which stays checked on the user's phone. 食らう's menu showed "Send to 呪術廻戦" and "Send to 色んな言葉". No send was made, to keep test notes out of the user's collection.
 - The user tested sending to a chosen deck on the phone and confirmed it works. The permission button wasn't seen, since the permission was already granted.
+
+### 2026-10-28, session 13: results start at the top
+- Fixed a bug the user found: when typing changed which word ranked first (しょうじょ → しょうじょう put 症状 above 少女), the list kept the old top word in view and the new best match was above the screen. The list keeps its first row in view wherever that row moves to, and `scrollToItem(0)` ran before the new rows were laid out, so it was undone. `SearchState` now gets a fresh `LazyListState` with each new set of results.
+- On the device: "read" → "rea" shows 成る at the top (読む was the top row before). Back still restores a scrolled search. The user confirmed こうし → こうじ on the phone.

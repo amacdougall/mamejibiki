@@ -80,7 +80,12 @@ class SearchState(initialQuery: String) : Screen {
     var results by mutableStateOf<List<SearchResult>>(emptyList())
     /** The query [results] belong to, so returning to this screen doesn't search again. */
     var resultsQuery: String? = null
-    val listState = LazyListState()
+    /**
+     * Replaced along with [results], so a new search starts at the top. Scrolling
+     * the old state to item 0 doesn't work: the keyed list keeps its old first
+     * row in view wherever that row moves to in the new results.
+     */
+    var listState by mutableStateOf(LazyListState())
     /** Entry ids of rows whose senses are expanded. Cleared by each new search. */
     var expanded by mutableStateOf(emptySet<Long>())
     /**
@@ -121,10 +126,10 @@ fun SearchScreen(
         if (query == state.resultsQuery) return@LaunchedEffect
         val started = System.nanoTime()
         state.results = withContext(Dispatchers.IO) { d.search(query) }
+        state.listState = LazyListState()
         state.resultsQuery = query
         state.expanded = emptySet()
         Log.i("Search", "'$query' → ${state.results.size} results in ${(System.nanoTime() - started) / 1_000_000} ms")
-        state.listState.scrollToItem(0)
     }
 
     Column(modifier.fillMaxSize()) {
