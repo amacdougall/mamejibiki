@@ -47,7 +47,6 @@ None.
 - **History lost when Android kills the app:** the back stack lives in a ViewModel, so it survives configuration changes but not process death. Reopening the app then starts at an empty search.
 - **KanjiVG glyph shapes differ from KANJIDIC2 for a few kanji:** KanjiVG draws traditional shapes for some 2010 jōyō additions, so its stroke count is one higher for 僅 葛 謎 賭 遜 遡 餅 餌 (two-dot ⻌, older 食 radical and similar) and one lower for 牙. The header shows KANJIDIC2's count, and the practice canvas expects KanjiVG's strokes.
 - **Half-length straight strokes can pass:** the research doc §3 score lets a straight stroke drawn at about half its length through (e.g. half of 日's middle bar scores under 1, well inside "correct"). Strokes that turn, like 日's second stroke, fail when drawn halfway.
-- **Search speed only partly measured:** search timings are written to the log (`adb logcat -s Search:I`). Seen so far: a 100-result English search ("hang") takes 120–400 ms, short Japanese searches take under 10 ms, and `*食*` (100 results) takes 63 ms. One-character prefix searches and the first-launch database copy haven't been timed.
 
 ## Log
 
@@ -158,3 +157,4 @@ One entry per work session, newest last.
   - The kanji page and the kanji comparison page are one screen, `KanjiState` (`single` / `comparing`).
 - Fixed: a query of only a kanji outside the BMP (𠮟) was treated as English. `Kana.hasJapanese` now checks Unicode scripts by code point (+ `KanaTest`).
 - On the device: English search rows, 陽光's Word and Kanji tabs (Entries rows), the 昜 component's kanji page, the comparison page (昜 copied from its tile and pasted into the search field), and Settings all look as before.
+- Profiled search on the device, one search at a time: a 100-result English search takes 30–55 ms (pitch lookups 10–30 ms of that), a one-letter English search 70–100 ms. Batching the pitch lookups into one query gave no speedup, so it was dropped. The user confirmed search speed isn't a problem in practice.
