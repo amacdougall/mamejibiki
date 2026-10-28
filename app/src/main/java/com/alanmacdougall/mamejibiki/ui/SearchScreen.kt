@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alanmacdougall.mamejibiki.data.Dictionary
+import com.alanmacdougall.mamejibiki.kanji.WordKanjiList
 import com.alanmacdougall.mamejibiki.search.FormMatch
 import com.alanmacdougall.mamejibiki.search.SearchResult
 import kotlinx.coroutines.Dispatchers
@@ -100,6 +101,7 @@ fun SearchScreen(
     state: SearchState,
     dictionary: Dictionary?,
     onOpen: (SearchResult) -> Unit,
+    onOpenLiteral: (String) -> Unit,
     onSend: (SearchResult, String) -> Unit,
     decks: List<String>,
     inAnki: (SearchResult) -> Boolean,
@@ -172,6 +174,13 @@ fun SearchScreen(
                 }
             }
             field.text.isBlank() -> EmptyHelp()
+            results.isEmpty() && WordKanjiList.kanjiIn(field.text).isNotEmpty() -> Column {
+                LiteralRow(field.text, onClick = {
+                    keyboard?.hide()
+                    onOpenLiteral(field.text)
+                })
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            }
             results.isEmpty() -> Text(
                 "No results",
                 Modifier.padding(24.dp),
@@ -208,6 +217,25 @@ private fun EmptyHelp() {
         Text("* matches any run of characters: *食 finds words ending in 食, *食* words containing it.", color = muted)
         Text("Words starting with your input are included, and small slips in long vowels or voicing (ゆき → 勇気) are tolerated.", color = muted)
         Text("Conjugated words find their dictionary form: 食べられない → 食べる.", color = muted)
+    }
+}
+
+/** The row a search with no results shows for its own text, when that has kanji. Tap opens its kanji (UI spec §2). */
+@Composable
+private fun LiteralRow(text: String, onClick: () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Text(text, style = MaterialTheme.typography.titleMedium.copy(lineHeight = 30.sp))
+        Text(
+            "No entry. Tap to see its kanji.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 

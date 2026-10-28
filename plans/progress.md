@@ -19,6 +19,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 2 | Result rows | ✅ | Forms with match highlight and prefix-remainder shade, rare forms greyed, common/する badges, numbered collapsible senses, pitch accent on readings, tap to open. |
 | 2 | Long-press menu (Copy, Send to 〜) | ✅ | One Send item per deck checked in Settings. Shows a disabled "Exists in AnkiDroid" for words already in AnkiDroid. |
 | 3 | Entry page header and tabs | ✅ | |
+| 2 | No-results row and kanji comparison page | ✅ | `ui/LiteralScreen.kt`. The user checked it on the phone. |
 | 4 | Word tab | ✅ | Headword, other forms, readings with all pitch patterns, senses grouped by part of speech under Japanese label headers (する folded into 他動詞（する）), numbered senses with their own labels, notes and tappable See also / Antonym links. |
 | 5 | Kanji tab, kanji pages, practice canvas | ✅ | The Kanji tab, kanji pages, header (sans, serif and pen-stroke tiles) with reading highlight, component tree, Entries with "See more", Contained in with "More", tap-the-tile collapsing, long-press Copy on any kanji, and the practice canvas (`practice/`, `ui/PracticeCanvas.kt`). The user uses the practice canvas by hand on the phone, and it works as intended. |
 | 6 | Forms tab and conjugation engine | ✅ | `conjugation/` (`architecture.md` §5). Unit tests check the 引く and 高い tables cell by cell, plus each class's distinctive cells. Checked on the device: 引く, 食べる, 来る, 勉強, 高い, いい. |
@@ -143,3 +144,8 @@ One entry per work session, newest last.
 ### 2026-10-28, session 13: results start at the top
 - Fixed a bug the user found: when typing changed which word ranked first (しょうじょ → しょうじょう put 症状 above 少女), the list kept the old top word in view and the new best match was above the screen. The list keeps its first row in view wherever that row moves to, and `scrollToItem(0)` ran before the new rows were laid out, so it was undone. `SearchState` now gets a fresh `LazyListState` with each new set of results.
 - On the device: "read" → "rea" shows 成る at the top (読む was the top row before). Back still restores a scrolled search. The user confirmed こうし → こうじ on the phone.
+
+### 2026-10-28: kanji comparison
+- A search with no results whose text contains kanji shows a row for that text. Tapping it opens a kanji comparison page with a block per kanji (UI spec §1, §2).
+- The entry page's top bar and tabs moved into `EntryFrame`, shared with the comparison page.
+- The user checked it on the phone.

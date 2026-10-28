@@ -85,29 +85,44 @@ fun EntryScreen(
         }
     }
 
+    EntryFrame(state.entry.text(state.headword), state.tabs, state.tab, { state.tab = it }, state.scroll.getValue(state.tab), onBack, modifier) {
+        when (state.tab) {
+            EntryTab.WORD -> if (dictionary != null) WordTab(state, dictionary, onSearch)
+            EntryTab.KANJI -> state.kanjiBlocks?.let { KanjiBlocks(it, onOpenKanji, onOpenEntry, onSearch) }
+            EntryTab.FORMS -> if (dictionary != null) FormsTab(state, dictionary)
+        }
+    }
+}
+
+/** The entry page's top bar (← and [title]) and tab row, above the selected tab's scrolling [content]. */
+@Composable
+fun EntryFrame(
+    title: String,
+    tabs: List<EntryTab>,
+    tab: EntryTab,
+    onTab: (EntryTab) -> Unit,
+    scroll: ScrollState,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
     Column(modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth().padding(end = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
             Text(
-                state.entry.text(state.headword),
+                title,
                 style = MaterialTheme.typography.titleLarge,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        if (state.tabs.size > 1) {
-            PrimaryTabRow(selectedTabIndex = state.tabs.indexOf(state.tab)) {
-                state.tabs.forEach { tab ->
-                    Tab(selected = tab == state.tab, onClick = { state.tab = tab }, text = { Text(tab.title) })
+        if (tabs.size > 1) {
+            PrimaryTabRow(selectedTabIndex = tabs.indexOf(tab)) {
+                tabs.forEach { t ->
+                    Tab(selected = t == tab, onClick = { onTab(t) }, text = { Text(t.title) })
                 }
             }
         }
-        Box(Modifier.fillMaxSize().verticalScroll(state.scroll.getValue(state.tab))) {
-            when (state.tab) {
-                EntryTab.WORD -> if (dictionary != null) WordTab(state, dictionary, onSearch)
-                EntryTab.KANJI -> state.kanjiBlocks?.let { KanjiBlocks(it, onOpenKanji, onOpenEntry, onSearch) }
-                EntryTab.FORMS -> if (dictionary != null) FormsTab(state, dictionary)
-            }
-        }
+        Box(Modifier.fillMaxSize().verticalScroll(scroll)) { content() }
     }
 }

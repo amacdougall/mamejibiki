@@ -13,7 +13,8 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `MainActivity.kt` | Creates `AppModel`, then sets the Compose content to `App(model)`. |
 | `ui/App.kt` | `AppModel` (the back stack, the `Dictionary`, the snackbar, Send to AnkiDroid, the enabled decks and AnkiDroid's deck list, and the `AnkiIndex` of existing notes, reloaded by `MainActivity.onResume`), the `Screen` interface, and `App()`, which shows the top of the stack and handles system back. |
 | `ui/SearchScreen.kt` | `SearchState` and the search screen: field, live search, result rows. `ResultRowContent` draws a row's forms, badges and collapsible senses; the caller holds the expanded flag (`SearchState.expanded`, `KanjiBlockState.expandedEntries`). |
-| `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Loads the Kanji tab's blocks the first time the tab is shown. |
+| `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Loads the Kanji tab's blocks the first time the tab is shown. `EntryFrame` draws the top bar, tab row and scrolling body; the kanji comparison page uses it too. |
+| `ui/LiteralScreen.kt` | `LiteralState` and the kanji comparison page: the kanji of a search with no results, opened from the search screen's no-results row. |
 | `ui/SettingsScreen.kt` | `SettingsState` and the settings screen: the Anki deck checkboxes. |
 | `ui/SendToAnki.kt` | AnkiDroid's runtime permission, in front of `AppModel.sendToAnki` and for the Settings deck list. |
 | `ui/WordTab.kt` | The Word tab (UI spec §4). |

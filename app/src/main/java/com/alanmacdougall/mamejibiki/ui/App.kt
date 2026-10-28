@@ -85,6 +85,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun search(text: String) = push(SearchState(text))
 
+    fun openLiteral(text: String) = push(LiteralState(text))
+
     fun openKanji(literal: String, original: String?) = push(KanjiState(literal, original))
 
     fun openSettings() = push(SettingsState())
@@ -148,6 +150,7 @@ fun App(model: AppModel) {
                         screen,
                         model.dictionary,
                         onOpen = model::openEntry,
+                        onOpenLiteral = model::openLiteral,
                         onSend = rememberSendToAnki(model),
                         decks = model.menuDecks,
                         inAnki = model::inAnki,
@@ -156,6 +159,9 @@ fun App(model: AppModel) {
                 }
                 is EntryState -> key(screen) {
                     EntryScreen(screen, model.dictionary, onBack = model::pop, onSearch = model::search, onOpenKanji = model::openKanji, onOpenEntry = model::openEntry)
+                }
+                is LiteralState -> key(screen) {
+                    LiteralScreen(screen, model.dictionary, onBack = model::pop, onSearch = model::search, onOpenKanji = model::openKanji, onOpenEntry = model::openEntry)
                 }
                 is SettingsState -> key(screen) {
                     SettingsScreen(
