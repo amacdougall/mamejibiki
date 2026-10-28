@@ -57,7 +57,7 @@ The top bar shows the word you searched for. Below it are up to three tabs:
 
 Each kanji on the Kanji tab, or on a standalone kanji page, shows:
 
-1. **Header:** a large tile, ON readings, KUN readings and English meanings. On a word's Kanji tab, **the reading the word uses is highlighted** (e.g. た.べる for 食べる). Below are the stroke count, JLPT level and school grade.
+1. **Header:** the kanji in three tiles, in a sans-serif font, a serif font and KanjiVG's handwritten pen strokes (the shapes the practice canvas expects), then ON readings, KUN readings and English meanings. On a word's Kanji tab, **the reading the word uses is highlighted** (e.g. た.べる for 食べる). Below are the stroke count, JLPT level and school grade.
 2. **Practice:** a button that opens a writing canvas. Draw each stroke in order with your finger:
    - A correct stroke snaps into its proper shape.
    - A wrong stroke flashes red and disappears.
@@ -68,7 +68,7 @@ Each kanji on the Kanji tab, or on a standalone kanji page, shows:
 4. **Entries:** the three most common words written with this kanji. **See more** searches `*<kanji>*` to list all of them.
 5. **Contained in:** kanji that use this one as a component, most frequent first. **More** shows all of them. Tap one to open it.
 
-**Long-press** any kanji in a block (the tile, a component or a Contained in kanji) and choose **Copy** to copy that character. It's an easy way to get radicals and components such as ⻖ that the keyboard can't reach.
+Tap any of the three tiles to collapse the block to its header. **Long-press** any kanji in a block (a tile, a component or a Contained in kanji) and choose **Copy** to copy that character. It's an easy way to get radicals and components such as ⻖ that the keyboard can't reach.
 
 ### Navigation
 

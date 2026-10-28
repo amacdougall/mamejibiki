@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alanmacdougall.mamejibiki.data.Dictionary
@@ -125,8 +128,9 @@ fun KanjiBlocks(
 /**
  * A kanji block: header row, practice area, component breakdown, entries and
  * Contained in. Taps open kanji pages and entries; "See more" searches for the kanji.
- * Tapping the kanji tile collapses the block to its header. Long-pressing any
- * kanji (the tile, a component, a Contained in kanji) offers Copy.
+ * The header shows the kanji three ways: sans-serif, serif and KanjiVG's pen
+ * strokes. Tapping any of those tiles collapses the block to its header.
+ * Long-pressing any kanji (a tile, a component, a Contained in kanji) offers Copy.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -139,27 +143,27 @@ fun KanjiBlock(
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                val tile = RoundedCornerShape(8.dp)
-                CopyMenu(state.literal, onClick = { state.collapsed = !state.collapsed }) { press ->
-                    Box(
-                        Modifier
-                            .size(104.dp)
-                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, tile)
-                            .clip(tile)
-                            .then(press),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(state.literal, style = MaterialTheme.typography.displayLarge, fontSize = 72.sp)
-                    }
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                val toggle = { state.collapsed = !state.collapsed }
+                KanjiTile(state.literal, toggle, Modifier.weight(1f)) {
+                    Text(state.literal, style = MaterialTheme.typography.displayLarge, fontSize = 72.sp)
                 }
-                val info = state.info
-                if (info != null) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Readings(info.on, state.highlight.on)
-                        Readings(info.kun, state.highlight.kun)
-                        if (info.meanings.isNotEmpty()) Text(info.meanings.joinToString(", "), style = MaterialTheme.typography.bodyLarge)
-                    }
+                KanjiTile(state.literal, toggle, Modifier.weight(1f)) {
+                    Text(state.literal, style = MaterialTheme.typography.displayLarge, fontSize = 72.sp, fontFamily = FontFamily.Serif)
+                }
+                val strokes = state.strokes
+                if (strokes != null) {
+                    // KanjiVG's glyph fills its square, so it's shrunk to sit at the fonts' size.
+                    KanjiTile(state.literal, toggle, Modifier.weight(1f)) { KanjiStrokes(strokes, Modifier.fillMaxSize(0.7f)) }
+                } else {
+                    Spacer(Modifier.weight(1f))
+                }
+            }
+            state.info?.let { info ->
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Readings(info.on, state.highlight.on)
+                    Readings(info.kun, state.highlight.kun)
+                    if (info.meanings.isNotEmpty()) Text(info.meanings.joinToString(", "), style = MaterialTheme.typography.bodyLarge)
                 }
             }
             val stats = listOfNotNull(
@@ -291,6 +295,28 @@ private fun ComponentNode(node: KanjiNode, depth: Int, infos: Map<String, KanjiI
         }
     }
     for (child in node.c) ComponentNode(child, depth + 1, infos, onOpenKanji)
+}
+
+/**
+ * One square kanji tile in the header row. Tap runs [onClick] (collapsing the
+ * block); long-press offers Copy.
+ */
+@Composable
+private fun KanjiTile(literal: String, onClick: () -> Unit, modifier: Modifier, content: @Composable () -> Unit) {
+    val tile = RoundedCornerShape(8.dp)
+    Box(modifier) {
+        CopyMenu(literal, onClick) { press ->
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, tile)
+                    .clip(tile)
+                    .then(press),
+                contentAlignment = Alignment.Center,
+            ) { content() }
+        }
+    }
 }
 
 /**

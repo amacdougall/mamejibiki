@@ -55,6 +55,8 @@ import kotlin.math.sin
 private const val UNITS = 109f
 /** KanjiVG's own stroke width, in units. */
 private const val INK_WIDTH = 3.5f
+/** Stroke width for [KanjiStrokes], which is drawn small: a bit heavier, to match a font's regular weight. */
+private const val STILL_INK_WIDTH = 5f
 /** A drawn point is kept only when it's this far (in units) from the last one. */
 private const val POINT_SPACING = 2f
 
@@ -245,7 +247,19 @@ fun PracticeCanvas(strokes: List<String>, modifier: Modifier = Modifier) {
     }
 }
 
-private fun inkStyle() = DrawStroke(width = INK_WIDTH, cap = StrokeCap.Round, join = StrokeJoin.Round)
+/** The kanji's KanjiVG strokes drawn whole and still, filling a square. */
+@Composable
+fun KanjiStrokes(strokes: List<String>, modifier: Modifier = Modifier) {
+    val paths = remember(strokes) { strokes.map { PathParser().parsePathString(it).toPath() } }
+    val ink = MaterialTheme.colorScheme.onSurface
+    Canvas(modifier.aspectRatio(1f)) {
+        scale(size.width / UNITS, pivot = Offset.Zero) {
+            for (path in paths) drawPath(path, ink, style = inkStyle(STILL_INK_WIDTH))
+        }
+    }
+}
+
+private fun inkStyle(width: Float = INK_WIDTH) = DrawStroke(width = width, cap = StrokeCap.Round, join = StrokeJoin.Round)
 
 /** The guide grid: centre lines and diagonals, dashed. */
 private fun DrawScope.drawGuides(color: Color) {
