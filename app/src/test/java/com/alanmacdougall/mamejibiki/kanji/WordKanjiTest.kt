@@ -1,6 +1,7 @@
 package com.alanmacdougall.mamejibiki.kanji
 
 import com.alanmacdougall.mamejibiki.data.Entry
+import com.alanmacdougall.mamejibiki.data.FormKind
 import com.alanmacdougall.mamejibiki.data.FormRef
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -17,22 +18,22 @@ class WordKanjiTest {
     private fun literals(entry: Entry, headword: FormRef) = WordKanjiList.list(entry, headword, null).map { it.literal }
 
     @Test fun order() {
-        assertEquals(listOf("憂", "鬱", "幽", "悒"), literals(yuuutsu, FormRef(FormRef.KANJI, 0)))
-        assertEquals(listOf("懸", "掛"), literals(kakeru, FormRef(FormRef.KANJI, 1)))
+        assertEquals(listOf("憂", "鬱", "幽", "悒"), literals(yuuutsu, FormRef(FormKind.KANJI, 0)))
+        assertEquals(listOf("懸", "掛"), literals(kakeru, FormRef(FormKind.KANJI, 1)))
         // A reading headword (a word usually written in kana): JMdict order.
-        assertEquals(listOf("掛", "懸"), literals(kakeru, FormRef(FormRef.KANA, 0)))
+        assertEquals(listOf("掛", "懸"), literals(kakeru, FormRef(FormKind.KANA, 0)))
     }
 
     @Test fun rareFormsComeLast() {
-        assertEquals(listOf("悒", "鬱", "憂", "幽"), literals(yuuutsu, FormRef(FormRef.KANJI, 2)))
+        assertEquals(listOf("悒", "鬱", "憂", "幽"), literals(yuuutsu, FormRef(FormKind.KANJI, 2)))
         val entry = Entry.decode(
             """{"kanji":[{"text":"甲","tags":["rK"]},{"text":"乙"}],"kana":[{"text":"x"}],"sense":[{"gloss":["x"]}]}""",
         )
-        assertEquals(listOf("乙", "甲"), literals(entry, FormRef(FormRef.KANA, 0)))
+        assertEquals(listOf("乙", "甲"), literals(entry, FormRef(FormKind.KANA, 0)))
     }
 
     @Test fun formsAndReadings() {
-        val list = WordKanjiList.list(yuuutsu, FormRef(FormRef.KANJI, 0), null)
+        val list = WordKanjiList.list(yuuutsu, FormRef(FormKind.KANJI, 0), null)
         assertEquals(WordKanji("幽", "幽鬱", "ゆううつ"), list[2])
     }
 

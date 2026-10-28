@@ -4,17 +4,11 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,12 +42,8 @@ fun SettingsScreen(
     // Decks may have been added or renamed in AnkiDroid.
     LaunchedEffect(Unit) { onRefresh() }
 
-    Column(modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
-            Text("Settings", style = MaterialTheme.typography.titleLarge)
-        }
-        Column(Modifier.fillMaxSize().verticalScroll(state.scroll).padding(vertical = 8.dp)) {
+    Page("Settings", onBack, state.scroll, modifier) {
+        Column(Modifier.padding(vertical = 8.dp)) {
             Text(
                 "Anki decks",
                 Modifier.padding(horizontal = 16.dp),

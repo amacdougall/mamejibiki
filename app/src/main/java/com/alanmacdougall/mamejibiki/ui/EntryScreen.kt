@@ -1,18 +1,6 @@
 package com.alanmacdougall.mamejibiki.ui
 
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -21,10 +9,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.alanmacdougall.mamejibiki.conjugation.Conjugation
 import com.alanmacdougall.mamejibiki.conjugation.FormsRow
 import com.alanmacdougall.mamejibiki.data.Dictionary
@@ -85,44 +70,25 @@ fun EntryScreen(
         }
     }
 
-    EntryFrame(state.entry.text(state.headword), state.tabs, state.tab, { state.tab = it }, state.scroll.getValue(state.tab), onBack, modifier) {
+    Page(
+        state.entry.text(state.headword),
+        onBack,
+        state.scroll.getValue(state.tab),
+        modifier,
+        header = {
+            if (state.tabs.size > 1) {
+                PrimaryTabRow(selectedTabIndex = state.tabs.indexOf(state.tab)) {
+                    state.tabs.forEach { t ->
+                        Tab(selected = t == state.tab, onClick = { state.tab = t }, text = { Text(t.title) })
+                    }
+                }
+            }
+        },
+    ) {
         when (state.tab) {
             EntryTab.WORD -> if (dictionary != null) WordTab(state, dictionary, onSearch)
             EntryTab.KANJI -> state.kanjiBlocks?.let { KanjiBlocks(it, onOpenKanji, onOpenEntry, onSearch) }
             EntryTab.FORMS -> if (dictionary != null) FormsTab(state, dictionary)
         }
-    }
-}
-
-/** The entry page's top bar (← and [title]) and tab row, above the selected tab's scrolling [content]. */
-@Composable
-fun EntryFrame(
-    title: String,
-    tabs: List<EntryTab>,
-    tab: EntryTab,
-    onTab: (EntryTab) -> Unit,
-    scroll: ScrollState,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    Column(modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth().padding(end = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
-            Text(
-                title,
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-        if (tabs.size > 1) {
-            PrimaryTabRow(selectedTabIndex = tabs.indexOf(tab)) {
-                tabs.forEach { t ->
-                    Tab(selected = t == tab, onClick = { onTab(t) }, text = { Text(t.title) })
-                }
-            }
-        }
-        Box(Modifier.fillMaxSize().verticalScroll(scroll)) { content() }
     }
 }

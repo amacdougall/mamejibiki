@@ -39,9 +39,14 @@ object Kana {
         }
     }
 
-    fun isKanji(c: Char): Boolean = c in '㐀'..'鿿' || c in '豈'..'﫿' || c == '々'
-
-    fun hasJapanese(text: String): Boolean = text.any {
-        it in '぀'..'ヿ' || it in '㐀'..'鿿' || it in '豈'..'﫿' || it == '々'
+    /**
+     * Whether [text] has a hiragana, katakana, Han or ー character, like
+     * pipeline/query.rb. Checked by code point, so a kanji outside the BMP
+     * (𠮟) counts.
+     */
+    fun hasJapanese(text: String): Boolean = text.codePoints().anyMatch {
+        it == 'ー'.code || Character.UnicodeScript.of(it) in JAPANESE_SCRIPTS
     }
+
+    private val JAPANESE_SCRIPTS = setOf(Character.UnicodeScript.HIRAGANA, Character.UnicodeScript.KATAKANA, Character.UnicodeScript.HAN)
 }

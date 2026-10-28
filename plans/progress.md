@@ -149,3 +149,12 @@ One entry per work session, newest last.
 - A search with no results whose text contains kanji shows a row for that text. Tapping it opens a kanji comparison page with a block per kanji (UI spec §1, §2).
 - The entry page's top bar and tabs moved into `EntryFrame`, shared with the comparison page.
 - The user checked it on the phone.
+
+### 2026-10-28, session 14: code review and cleanup
+- Reviewed the whole app for quality. Refactored without changing behaviour:
+  - `FormRef.kind` is a `FormKind` enum, and `FormMatch` holds a `FormRef` (`FormRef.fromDb` reads the database's `form_kind` / `form_index` columns).
+  - The result row moved from `ui/SearchScreen.kt` to `ui/ResultRow.kt`, since the kanji block uses it too.
+  - `ui/Page.kt` lays out every screen but search (top bar, optional header, scrolling body), replacing three copies of the top bar.
+  - The kanji page and the kanji comparison page are one screen, `KanjiState` (`single` / `comparing`).
+- Fixed: a query of only a kanji outside the BMP (𠮟) was treated as English. `Kana.hasJapanese` now checks Unicode scripts by code point (+ `KanaTest`).
+- On the device: English search rows, 陽光's Word and Kanji tabs (Entries rows), the 昜 component's kanji page, the comparison page (昜 copied from its tile and pasted into the search field), and Settings all look as before.

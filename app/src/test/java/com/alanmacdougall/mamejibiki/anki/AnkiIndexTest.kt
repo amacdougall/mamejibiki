@@ -1,6 +1,7 @@
 package com.alanmacdougall.mamejibiki.anki
 
 import com.alanmacdougall.mamejibiki.data.Entry
+import com.alanmacdougall.mamejibiki.data.FormKind
 import com.alanmacdougall.mamejibiki.data.FormRef
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -38,23 +39,23 @@ class AnkiIndexTest {
 
     @Test fun usuallyKanaWordMatchesItsRubyKanjiNote() {
         val index = AnkiIndex(listOf("<ruby>煙草<rt>たばこ</rt></ruby>" to "たばこ"))
-        assertTrue(AnkiIndex.key(tabako, FormRef(FormRef.KANA, 0)) in index)
+        assertTrue(AnkiIndex.key(tabako, FormRef(FormKind.KANA, 0)) in index)
         assertTrue(AnkiIndex.key(tabako, null) in index)
-        assertTrue(AnkiIndex.key(tabako, FormRef(FormRef.KANJI, 0)) in index)
+        assertTrue(AnkiIndex.key(tabako, FormRef(FormKind.KANJI, 0)) in index)
     }
 
     @Test fun usuallyKanaWordMatchesItsKanaNote() {
         val index = AnkiIndex(listOf("たばこ" to "たばこ"))
-        assertTrue(AnkiIndex.key(tabako, FormRef(FormRef.KANJI, 0)) in index)
+        assertTrue(AnkiIndex.key(tabako, FormRef(FormKind.KANJI, 0)) in index)
     }
 
     @Test fun otherWrittenFormsOfTheSameReadingMatch() {
         val index = AnkiIndex(listOf("掛ける" to "かける"))
-        assertTrue(AnkiIndex.key(kakeru, FormRef(FormRef.KANJI, 1)) in index)
+        assertTrue(AnkiIndex.key(kakeru, FormRef(FormKind.KANJI, 1)) in index)
     }
 
     @Test fun kanaNoteDoesNotCoverAWordUsuallyWrittenInKanji() {
-        assertFalse(AnkiIndex.key(kakeru, FormRef(FormRef.KANJI, 0)) in AnkiIndex(listOf("かける" to "かける")))
+        assertFalse(AnkiIndex.key(kakeru, FormRef(FormKind.KANJI, 0)) in AnkiIndex(listOf("かける" to "かける")))
     }
 
     @Test fun differentReadingIsADifferentWord() {

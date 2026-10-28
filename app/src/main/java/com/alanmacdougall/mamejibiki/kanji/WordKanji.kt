@@ -1,6 +1,7 @@
 package com.alanmacdougall.mamejibiki.kanji
 
 import com.alanmacdougall.mamejibiki.data.Entry
+import com.alanmacdougall.mamejibiki.data.FormKind
 import com.alanmacdougall.mamejibiki.data.FormRef
 import com.alanmacdougall.mamejibiki.search.Kana
 
@@ -32,12 +33,12 @@ object WordKanjiList {
      * matched reading for the headword).
      */
     fun list(entry: Entry, headword: FormRef, matched: FormRef?): List<WordKanji> {
-        val first = listOfNotNull(headword.index.takeIf { headword.kind == FormRef.KANJI })
+        val first = listOfNotNull(headword.index.takeIf { headword.kind == FormKind.KANJI })
         val rest = entry.kanji.indices.filter { it !in first }.sortedBy { entry.kanji[it].isRare }
         val result = LinkedHashMap<String, WordKanji>()
         for (i in first + rest) {
             val form = entry.kanji[i].text
-            val ref = FormRef(FormRef.KANJI, i)
+            val ref = FormRef(FormKind.KANJI, i)
             val reading = entry.kana.getOrNull(entry.readingFor(ref, if (ref == headword) matched else null))?.text ?: continue
             for (k in kanjiIn(form)) result.getOrPut(k) { WordKanji(k, form, reading) }
         }

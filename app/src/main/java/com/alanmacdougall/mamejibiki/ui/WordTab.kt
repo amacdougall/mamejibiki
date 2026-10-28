@@ -18,6 +18,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.alanmacdougall.mamejibiki.data.Dictionary
+import com.alanmacdougall.mamejibiki.data.FormKind
 import com.alanmacdougall.mamejibiki.data.FormRef
 import com.alanmacdougall.mamejibiki.data.Sense
 import kotlinx.serialization.json.JsonElement
@@ -34,7 +35,7 @@ fun WordTab(state: EntryState, dictionary: Dictionary, onSearch: (String) -> Uni
         // Written forms: the headword, then the others.
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(entry.text(state.headword), style = MaterialTheme.typography.displaySmall)
-            val others = entry.kanji.indices.filter { FormRef(FormRef.KANJI, it) != state.headword }
+            val others = entry.kanji.indices.filter { FormRef(FormKind.KANJI, it) != state.headword }
             if (others.isNotEmpty()) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     for (i in others) {

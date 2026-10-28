@@ -11,7 +11,7 @@ data class Entry(
     val kana: List<KanaForm>,
     val sense: List<Sense>,
 ) {
-    fun text(form: FormRef): String = if (form.kind == FormRef.KANJI) kanji[form.index].text else kana[form.index].text
+    fun text(form: FormRef): String = if (form.kind == FormKind.KANJI) kanji[form.index].text else kana[form.index].text
 
     /** True when the entry is usually written in kana, so its headword is a reading. */
     val usuallyKana: Boolean get() = kanji.isEmpty() || "uk" in sense.first().misc
@@ -24,13 +24,13 @@ data class Entry(
      * the first written form, or the first reading for kana words.
      */
     fun headword(matched: FormRef?): FormRef {
-        if (matched?.kind == FormRef.KANJI) return matched
+        if (matched?.kind == FormKind.KANJI) return matched
         if (matched != null && usuallyKana) return matched
         val reading = matched?.let { kana[it.index] }
-        if (matched == null && usuallyKana) return FormRef(FormRef.KANA, 0)
+        if (matched == null && usuallyKana) return FormRef(FormKind.KANA, 0)
         val candidates = kanji.indices.filter { reading == null || reading.appliesTo(kanji[it].text) }
         val best = candidates.firstOrNull { !kanji[it].isRare } ?: candidates.firstOrNull()
-        return if (best != null) FormRef(FormRef.KANJI, best) else matched ?: FormRef(FormRef.KANA, 0)
+        return if (best != null) FormRef(FormKind.KANJI, best) else matched ?: FormRef(FormKind.KANA, 0)
     }
 
     /**
@@ -39,9 +39,9 @@ data class Entry(
      * headword; else the headword's first common reading.
      */
     fun readingFor(headword: FormRef, matched: FormRef?): Int {
-        if (headword.kind == FormRef.KANA) return headword.index
+        if (headword.kind == FormKind.KANA) return headword.index
         val written = kanji[headword.index].text
-        if (matched?.kind == FormRef.KANA && kana[matched.index].appliesTo(written)) return matched.index
+        if (matched?.kind == FormKind.KANA && kana[matched.index].appliesTo(written)) return matched.index
         val candidates = kana.indices.filter { kana[it].appliesTo(written) }
         return candidates.firstOrNull { !kana[it].isRare } ?: candidates.firstOrNull() ?: 0
     }
@@ -75,11 +75,14 @@ data class KanaForm(
     fun appliesTo(kanji: String): Boolean = appliesToKanji?.contains(kanji) ?: true
 }
 
+/** Written forms (Entry.kanji) or readings (Entry.kana). Ordinals match the database's `form_kind` column. */
+enum class FormKind { KANJI, KANA }
+
 /** A written form (kind KANJI, index into Entry.kanji) or reading (kind KANA, index into Entry.kana). */
-data class FormRef(val kind: Int, val index: Int) {
+data class FormRef(val kind: FormKind, val index: Int) {
     companion object {
-        const val KANJI = 0
-        const val KANA = 1
+        /** A ref from the database's `form_kind` (0 written, 1 reading) and `form_index` columns. */
+        fun fromDb(kind: Int, index: Int) = FormRef(FormKind.entries[kind], index)
     }
 }
 

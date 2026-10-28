@@ -10,15 +10,12 @@ import com.alanmacdougall.mamejibiki.pitch.Accent
 enum class Tier { EXACT, FUZZY_EXACT, DEINFLECTED, PREFIX, FUZZY, PATTERN, ENGLISH_EXACT, ENGLISH_PREFIX, ENGLISH_WORD }
 
 /**
- * Which written form (formKind 0, index into Entry.kanji) or reading
- * (formKind 1, index into Entry.kana) a Japanese query matched.
- * [highlight] holds the character ranges the query's text matched; the rest
- * of the form is the unmatched remainder. Null means the whole form (fuzzy
- * matches have no character-level alignment).
+ * Which written form or reading a Japanese query matched. [highlight] holds
+ * the character ranges the query's text matched; the rest of the form is the
+ * unmatched remainder. Null means the whole form (fuzzy matches have no
+ * character-level alignment).
  */
-data class FormMatch(val formKind: Int, val formIndex: Int, val highlight: List<IntRange>?) {
-    val form: FormRef get() = FormRef(formKind, formIndex)
-}
+data class FormMatch(val form: FormRef, val highlight: List<IntRange>?)
 
 /**
  * [pitch] holds each reading's accent patterns, indexed like Entry.kana.
@@ -61,7 +58,7 @@ class Search(private val db: SQLiteDatabase) {
         val seen = HashSet<Long>()
         val results = ArrayList<SearchResult>()
         val match = { tier: Tier, cursor: android.database.Cursor ->
-            FormMatch(cursor.getInt(4), cursor.getInt(5), if (tier == Tier.PREFIX) listOf(0 until query.length) else null)
+            FormMatch(FormRef.fromDb(cursor.getInt(4), cursor.getInt(5)), if (tier == Tier.PREFIX) listOf(0 until query.length) else null)
         }
         collect(whole, "jp_keys", "k.form_kind, k.form_index", firstOrder = "", seen, results, match)
         if ('?' !in query) deinflected(Kana.searchKey(query), seen, results)
@@ -89,7 +86,7 @@ class Search(private val db: SQLiteDatabase) {
             while (c.moveToNext() && results.size < MAX_RESULTS) {
                 val id = c.getLong(0)
                 if (!seen.add(id)) continue
-                val match = FormMatch(c.getInt(2), c.getInt(3), Wildcard.highlight(key, c.getString(4)))
+                val match = FormMatch(FormRef.fromDb(c.getInt(2), c.getInt(3)), Wildcard.highlight(key, c.getString(4)))
                 results += SearchResult(id, Entry.decode(c.getString(1)), Tier.PATTERN, match)
             }
         }
@@ -131,7 +128,7 @@ class Search(private val db: SQLiteDatabase) {
                     if (chains.isEmpty()) continue
                     hits[id]?.let { it.chains += chains; continue }
                     val rank = if (c.isNull(3)) null else c.getInt(3)
-                    hits[id] = Hit(id, c.getString(1), c.getInt(2), rank, FormMatch(c.getInt(6), c.getInt(7), null), chains.toMutableList())
+                    hits[id] = Hit(id, c.getString(1), c.getInt(2), rank, FormMatch(FormRef.fromDb(c.getInt(6), c.getInt(7)), null), chains.toMutableList())
                 }
             }
         }

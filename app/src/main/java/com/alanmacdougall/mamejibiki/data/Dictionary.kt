@@ -59,7 +59,7 @@ class Dictionary private constructor(private val db: SQLiteDatabase) {
 
     /** A reading's Wadoku H/L string (several patterns comma-separated), looked up as in [readingPitches]. */
     private fun wadoku(entry: Entry, headword: FormRef, reading: KanaForm): String? {
-        val written = listOfNotNull(entry.kanji.getOrNull(headword.index)?.takeIf { headword.kind == FormRef.KANJI }) + entry.kanji
+        val written = listOfNotNull(entry.kanji.getOrNull(headword.index)?.takeIf { headword.kind == FormKind.KANJI }) + entry.kanji
         val forms = (written.map { it.text }.filter { reading.appliesTo(it) } + reading.text).distinct()
         val key = Kana.toHiragana(reading.text)
         val placeholders = forms.joinToString(",") { "?" }
@@ -122,14 +122,14 @@ class Dictionary private constructor(private val db: SQLiteDatabase) {
             while (c.moveToNext() && headed.size < limit) {
                 val entry = Entry.decode(c.getString(1))
                 val headword = entry.headword(null)
-                val form = if (headword.kind == FormRef.KANJI && literal in entry.kanji[headword.index].text) {
+                val form = if (headword.kind == FormKind.KANJI && literal in entry.kanji[headword.index].text) {
                     headword.index
                 } else {
                     val withKanji = entry.kanji.indices.filter { literal in entry.kanji[it].text }
                     withKanji.firstOrNull { !entry.kanji[it].isRare } ?: withKanji.firstOrNull() ?: continue
                 }
-                val result = SearchResult(c.getLong(0), entry, Tier.EXACT, FormMatch(FormRef.KANJI, form, null))
-                if (form == headword.index && headword.kind == FormRef.KANJI) headed += result else others += result
+                val result = SearchResult(c.getLong(0), entry, Tier.EXACT, FormMatch(FormRef(FormKind.KANJI, form), null))
+                if (form == headword.index && headword.kind == FormKind.KANJI) headed += result else others += result
             }
         }
         return (headed + others).take(limit).map { it.copy(pitch = readingPitches(it.entry, it.entry.headword(it.match?.form))) }
@@ -150,7 +150,7 @@ class Dictionary private constructor(private val db: SQLiteDatabase) {
         val headword = entry.headword(matched)
         val word = entry.text(headword)
         val reading = entry.kana[entry.readingFor(headword, matched)]
-        return Kaishi.note(entry, word, reading.text, wadoku(entry, headword, reading), rank(word, reading.text, headword.kind == FormRef.KANA))
+        return Kaishi.note(entry, word, reading.text, wadoku(entry, headword, reading), rank(word, reading.text, headword.kind == FormKind.KANA))
     }
 
     companion object {

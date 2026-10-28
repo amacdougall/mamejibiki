@@ -12,16 +12,17 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 |---|---|
 | `MainActivity.kt` | Creates `AppModel`, then sets the Compose content to `App(model)`. |
 | `ui/App.kt` | `AppModel` (the back stack, the `Dictionary`, the snackbar, Send to AnkiDroid, the enabled decks and AnkiDroid's deck list, and the `AnkiIndex` of existing notes, reloaded by `MainActivity.onResume`), the `Screen` interface, and `App()`, which shows the top of the stack and handles system back. |
-| `ui/SearchScreen.kt` | `SearchState` and the search screen: field, live search, result rows. `ResultRowContent` draws a row's forms, badges and collapsible senses; the caller holds the expanded flag (`SearchState.expanded`, `KanjiBlockState.expandedEntries`). |
-| `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Loads the Kanji tab's blocks the first time the tab is shown. `EntryFrame` draws the top bar, tab row and scrolling body; the kanji comparison page uses it too. |
-| `ui/LiteralScreen.kt` | `LiteralState` and the kanji comparison page: the kanji of a search with no results, opened from the search screen's no-results row. |
+| `ui/SearchScreen.kt` | `SearchState` and the search screen: field, live search, the result list with its long-press menu, and the no-results row. |
+| `ui/EntryScreen.kt` | `EntryState` and the entry page: tabs and per-tab scrolling. Loads the Kanji tab's blocks the first time the tab is shown. |
+| `ui/ResultRow.kt` | `ResultRowContent`, a result row's forms, badges and collapsible senses, used by the search screen and a kanji block's Entries. The caller holds the expanded flag (`SearchState.expanded`, `KanjiBlockState.expandedEntries`). Also `copyText`. |
+| `ui/Page.kt` | `Page`, the layout of every screen but search: top bar (← and title), an optional fixed header (the entry page's tab row) and a scrolling body. |
 | `ui/SettingsScreen.kt` | `SettingsState` and the settings screen: the Anki deck checkboxes. |
 | `ui/SendToAnki.kt` | AnkiDroid's runtime permission, in front of `AppModel.sendToAnki` and for the Settings deck list. |
 | `ui/WordTab.kt` | The Word tab (UI spec §4). |
 | `ui/FormsTab.kt` | The Forms tab (UI spec §6), drawing `EntryState.formsTables`. |
-| `ui/KanjiBlock.kt` | `KanjiBlockState` (one loaded kanji block, with its "More" and practice-expanded flags) and the kanji display container (UI spec §5): header, Practice button, component tree, Entries (drawn with the search screen's `ResultRowContent`), Contained in, and the long-press Copy menu on each kanji. The header's pen-stroke tile is `KanjiStrokes` from `PracticeCanvas.kt`. Shared by the Kanji tab and the kanji page. |
+| `ui/KanjiBlock.kt` | `KanjiBlockState` (one loaded kanji block, with its "More" and practice-expanded flags) and the kanji display container (UI spec §5): header, Practice button, component tree, Entries (drawn with `ResultRowContent`), Contained in, and the long-press Copy menu on each kanji. The header's pen-stroke tile is `KanjiStrokes` from `PracticeCanvas.kt`. Shared by the Kanji tab and the kanji pages. |
 | `ui/PracticeCanvas.kt` | `KanjiStrokes` (a still drawing of the KanjiVG strokes) and the practice canvas: guide grid, touch input that never scrolls the page, Hint / Show Me / Clear, and the stroke animations. Draws reference strokes with Compose's `PathParser` and grades with `practice/`. Its run lives in `remember`, so the drawing isn't kept in history. |
-| `ui/KanjiScreen.kt` | `KanjiState` and the standalone kanji page. |
+| `ui/KanjiScreen.kt` | `KanjiState` and the kanji page: a block per kanji with no word context. `KanjiState.single` is one kanji's page (from a component or Contained in); `KanjiState.comparing` is the kanji comparison page for a search with no results. |
 | `ui/PitchText.kt` | `PitchText`, a `Text` with pitch accent overlines drawn over chosen character ranges. |
 | `ui/Theme.kt`, `ui/Icons.kt` | Material 3 theme with Japanese-locale typography; icons missing from material-icons-core. |
 | `data/DictionaryDatabase.kt` | Copies the SQLite asset into app storage when its version stamp changes, and opens it read-only. |
@@ -31,7 +32,7 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `data/Entry.kt` | The entry JSON model (`Entry`, `KanjiForm`, `KanaForm`, `Sense`), `FormRef`, and the headword rule (UI spec §2). |
 | `search/Search.kt` | The ranked search tiers (`Tier`) over `jp_keys` and `en_keys`. |
 | `search/Wildcard.kt` | `*` wildcard parsing, the GLOB pattern, and the highlight ranges a pattern matched. Pure Kotlin. |
-| `search/Kana.kt`, `search/English.kt` | Query normalization, identical to `pipeline/lib/kana.rb` and `english.rb`. |
+| `search/Kana.kt`, `search/English.kt` | Query normalization, identical to `pipeline/lib/kana.rb` and `english.rb`. `Kana.hasJapanese` decides between Japanese and English search by Unicode script, like `pipeline/query.rb`. |
 | `pitch/Pitch.kt` | Mora splitting and Wadoku H/L parsing into high runs. |
 | `anki/Kaishi.kt` | The Kaishi 1.5k note's fields and tags, ported from anki-scripts (UI spec §8). Pure Kotlin. |
 | `anki/AnkiDroid.kt` | Adds notes through AnkiDroid's ContentProvider (note type, deck and duplicate checks) and reads every Kaishi note for the index. |
@@ -50,7 +51,7 @@ Unit tests live in `app/src/test/`. They're plain JVM tests and can't use Androi
 - **The back stack** is `AppModel.stack`, a list of `Screen` objects. `push` adds one, and `pop` removes one (system back and the top-bar ← both call it). On the root screen, back isn't intercepted, so Android closes the app.
 - **Each screen is a state object** (`SearchState`, `EntryState`) that holds everything the screen shows: query, results, `LazyListState`, selected tab, `ScrollState`s, loaded data. Composables read and write that object instead of using `remember`, so returning to a screen restores it exactly.
 - **`App()` wraps each screen in `key(screen)`,** so `remember`ed helpers such as `FocusRequester` belong to one history entry.
-- **Adding a new kind of screen** takes three steps: a class implementing `Screen` that holds its state, a composable that takes it, and a branch in `App()`'s `when`. Then add an `AppModel` method that pushes it.
+- **Adding a new kind of screen** takes three steps: a class implementing `Screen` that holds its state, a composable that takes it (usually laid out with `Page`), and a branch in `App()`'s `when`. Then add an `AppModel` method that pushes it.
 - **Lifetime:** the stack lives in a ViewModel, so it survives configuration changes but not process death.
 
 ## 3. Database access and threading
