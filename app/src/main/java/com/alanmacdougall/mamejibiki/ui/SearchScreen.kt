@@ -364,7 +364,7 @@ private fun senseLines(result: SearchResult): List<String> {
     return senses.mapIndexed { i, s -> "${i + 1}. ${s.gloss.joinToString(", ")}" }
 }
 
-private fun copyText(context: Context, text: String) {
+internal fun copyText(context: Context, text: String) {
     context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(text, text))
 }
 

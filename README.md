@@ -68,6 +68,8 @@ Each kanji on the Kanji tab, or on a standalone kanji page, shows:
 4. **Entries:** the three most common words written with this kanji. **See more** searches `*<kanji>*` to list all of them.
 5. **Contained in:** kanji that use this one as a component, most frequent first. **More** shows all of them. Tap one to open it.
 
+**Long-press** any kanji in a block (the tile, a component or a Contained in kanji) and choose **Copy** to copy that character. It's an easy way to get radicals and components such as ⻖ that the keyboard can't reach.
+
 ### Navigation
 
 Back (the ← arrow or the system gesture) steps through everything you've opened: searches, words, kanji pages and See also links. Each screen comes back exactly as you left it, with the same query, scroll position, tab, expanded rows and open practice canvases. Back from the first search screen closes the app.

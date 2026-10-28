@@ -1,8 +1,10 @@
 package com.alanmacdougall.mamejibiki.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -26,11 +30,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alanmacdougall.mamejibiki.data.Dictionary
@@ -119,7 +125,8 @@ fun KanjiBlocks(
 /**
  * A kanji block: header row, practice area, component breakdown, entries and
  * Contained in. Taps open kanji pages and entries; "See more" searches for the kanji.
- * Tapping the kanji tile collapses the block to its header.
+ * Tapping the kanji tile collapses the block to its header. Long-pressing any
+ * kanji (the tile, a component, a Contained in kanji) offers Copy.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -134,15 +141,17 @@ fun KanjiBlock(
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 val tile = RoundedCornerShape(8.dp)
-                Box(
-                    Modifier
-                        .size(104.dp)
-                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, tile)
-                        .clip(tile)
-                        .clickable { state.collapsed = !state.collapsed },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(state.literal, style = MaterialTheme.typography.displayLarge, fontSize = 72.sp)
+                CopyMenu(state.literal, onClick = { state.collapsed = !state.collapsed }) { press ->
+                    Box(
+                        Modifier
+                            .size(104.dp)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, tile)
+                            .clip(tile)
+                            .then(press),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(state.literal, style = MaterialTheme.typography.displayLarge, fontSize = 72.sp)
+                    }
                 }
                 val info = state.info
                 if (info != null) {
@@ -211,11 +220,13 @@ fun KanjiBlock(
                 val shown = if (state.showAllContainedIn) state.containedIn else state.containedIn.take(CONTAINED_IN_BATCH)
                 FlowRow {
                     for (k in shown) {
-                        Text(
-                            k,
-                            Modifier.clickable { onOpenKanji(k, null) }.padding(horizontal = 6.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.headlineMedium,
-                        )
+                        CopyMenu(k, onClick = { onOpenKanji(k, null) }) { press ->
+                            Text(
+                                k,
+                                press.padding(horizontal = 6.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.headlineMedium,
+                            )
+                        }
                     }
                 }
                 if (shown.size < state.containedIn.size) {
@@ -252,32 +263,54 @@ private fun Readings(readings: List<String>, highlighted: Set<Int>) {
 @Composable
 private fun ComponentNode(node: KanjiNode, depth: Int, infos: Map<String, KanjiInfo>, onOpenKanji: (String, String?) -> Unit) {
     val info = infos[node.e] ?: node.o?.let { infos[it] }
-    Row(
-        Modifier.fillMaxWidth().clickable { onOpenKanji(node.e, node.o) }.padding(start = (depth * 28).dp, top = 4.dp, bottom = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(node.e, Modifier.width(48.dp), style = MaterialTheme.typography.headlineMedium)
-        Column {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                if (info != null && info.meanings.isNotEmpty()) {
-                    Text(info.meanings.take(3).joinToString(", "), style = MaterialTheme.typography.bodyLarge)
+    CopyMenu(node.e, onClick = { onOpenKanji(node.e, node.o) }) { press ->
+        Row(
+            Modifier.fillMaxWidth().then(press).padding(start = (depth * 28).dp, top = 4.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(node.e, Modifier.width(48.dp), style = MaterialTheme.typography.headlineMedium)
+            Column {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    if (info != null && info.meanings.isNotEmpty()) {
+                        Text(info.meanings.take(3).joinToString(", "), style = MaterialTheme.typography.bodyLarge)
+                    }
+                    if (node.phon) {
+                        Text(
+                            "phonetic",
+                            Modifier.background(MaterialTheme.colorScheme.tertiaryContainer, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                        )
+                    }
                 }
-                if (node.phon) {
-                    Text(
-                        "phonetic",
-                        Modifier.background(MaterialTheme.colorScheme.tertiaryContainer, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                    )
+                val readings = info?.let { it.on.take(3) + it.kun.take(3) }.orEmpty()
+                if (readings.isNotEmpty()) {
+                    Text(readings.joinToString("、"), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-            }
-            val readings = info?.let { it.on.take(3) + it.kun.take(3) }.orEmpty()
-            if (readings.isNotEmpty()) {
-                Text(readings.joinToString("、"), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
     for (child in node.c) ComponentNode(child, depth + 1, infos, onOpenKanji)
+}
+
+/**
+ * [content] with a long-press menu holding Copy, which copies [text]. [content]
+ * puts the given modifier where the press should register; a tap runs [onClick].
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun CopyMenu(text: String, onClick: () -> Unit, content: @Composable (Modifier) -> Unit) {
+    var menu by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    Box {
+        content(Modifier.combinedClickable(onClick = onClick, onLongClick = { menu = true }))
+        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+            DropdownMenuItem(text = { Text("Copy") }, onClick = {
+                menu = false
+                copyText(context, text)
+            })
+        }
+    }
 }
 
 /** KANJIDIC2's school grade in words (UI spec §5). */

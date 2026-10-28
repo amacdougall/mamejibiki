@@ -16,7 +16,7 @@ Source root: `app/src/main/java/com/alanmacdougall/mamejibiki/`.
 | `ui/EntryScreen.kt` | `EntryState` and the entry page: top bar, tabs, per-tab scrolling. Loads the Kanji tab's blocks the first time the tab is shown. |
 | `ui/WordTab.kt` | The Word tab (UI spec §4). |
 | `ui/FormsTab.kt` | The Forms tab (UI spec §6), drawing `EntryState.formsTables`. |
-| `ui/KanjiBlock.kt` | `KanjiBlockState` (one loaded kanji block, with its "More" and practice-expanded flags) and the kanji display container (UI spec §5): header, Practice button, component tree, Entries (drawn with the search screen's `ResultRowContent`), Contained in. Shared by the Kanji tab and the kanji page. |
+| `ui/KanjiBlock.kt` | `KanjiBlockState` (one loaded kanji block, with its "More" and practice-expanded flags) and the kanji display container (UI spec §5): header, Practice button, component tree, Entries (drawn with the search screen's `ResultRowContent`), Contained in, and the long-press Copy menu on each kanji. Shared by the Kanji tab and the kanji page. |
 | `ui/PracticeCanvas.kt` | The practice canvas: guide grid, touch input that never scrolls the page, Hint / Show Me / Clear, and the stroke animations. Draws reference strokes with Compose's `PathParser` and grades with `practice/`. Its run lives in `remember`, so the drawing isn't kept in history. |
 | `ui/KanjiScreen.kt` | `KanjiState` and the standalone kanji page. |
 | `ui/PitchText.kt` | `PitchText`, a `Text` with pitch accent overlines drawn over chosen character ranges. |
