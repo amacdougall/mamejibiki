@@ -11,6 +11,10 @@ The `plans/` directory is the spec. Read it before starting work:
 - `plans/2026-10-26-dev-environment.md`: toolchain, test device, the build → install → screenshot loop, driving the phone from adb, and running tests.
 - `plans/progress.md`: what's done and what remains, compared with the spec. Read it first to find the next task. Update it at the end of every work session.
 
+## Ending a session
+
+Develop and check work with the debug build. Once the user says they're satisfied, uninstall the debug build, build a new release APK with a bumped version, install it on the phone and check that it runs. The steps are in `plans/2026-10-26-dev-environment.md` §5, under "End of every dev session".
+
 ## Commits
 
 Commit directly to `main`, and only when the user asks.

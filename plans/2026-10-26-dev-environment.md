@@ -93,6 +93,14 @@ Screenshots are the main way to check UI work, because the user doesn't read the
 - **Debug and release don't mix on one phone:** they have the same application ID but different signatures. Switching between them means uninstalling first, which deletes the app's local data.
 - **Version:** bump `versionCode` and `versionName` in `app/build.gradle.kts` for each APK handed out, so it installs as an update.
 
+**End of every dev session.** Dev work runs on the debug build, but the phone's resting state is the latest release build. Once the user says they're satisfied with the session's changes:
+
+1. Bump `versionCode` and `versionName`.
+2. `./gradlew assembleRelease`.
+3. `adb uninstall com.alanmacdougall.mamejibiki` to remove the debug build. This clears the app's data, so the user grants the AnkiDroid permission again from Settings.
+4. `adb install app/build/outputs/apk/release/app-release.apk`.
+5. Launch it and screenshot a search to check the release build works.
+
 ## 6. Tests
 
 ```sh
