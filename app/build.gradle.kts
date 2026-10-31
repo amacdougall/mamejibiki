@@ -12,8 +12,8 @@ android {
         applicationId = "com.alanmacdougall.mamejibiki"
         minSdk = 33
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1"
+        versionCode = 2
+        versionName = "0.2"
     }
 
     // The release key and its passwords live outside the repo, in ~/.gradle/gradle.properties.

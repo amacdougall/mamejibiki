@@ -1,5 +1,6 @@
 package com.alanmacdougall.mamejibiki.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -159,27 +160,33 @@ fun KanjiBlock(
                     Spacer(Modifier.weight(1f))
                 }
             }
-            state.info?.let { info ->
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Readings(info.on, state.highlight.on)
-                    Readings(info.kun, state.highlight.kun)
-                    if (info.meanings.isNotEmpty()) Text(info.meanings.joinToString(", "), style = MaterialTheme.typography.bodyLarge)
+            // Practising hides the details between the tiles and the Practice button,
+            // so the canvas sits right under the tiles.
+            AnimatedVisibility(visible = !state.practiceOpen || state.collapsed || state.strokes == null) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    state.info?.let { info ->
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Readings(info.on, state.highlight.on)
+                            Readings(info.kun, state.highlight.kun)
+                            if (info.meanings.isNotEmpty()) Text(info.meanings.joinToString(", "), style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                    val stats = listOfNotNull(
+                        state.strokeCount?.let { if (it == 1) "1 stroke" else "$it strokes" },
+                        // A variant's borrowed data lends meanings and readings, not its levels.
+                        state.info?.takeIf { state.variantOf == null }?.jlpt?.let { "N$it" },
+                        state.info?.takeIf { state.variantOf == null }?.grade?.let(::gradeLabel),
+                    )
+                    if (stats.isNotEmpty()) Text(stats.joinToString(" · "), style = MaterialTheme.typography.bodyMedium, color = muted)
+                    state.variantOf?.let { original ->
+                        Text(
+                            "Variant of $original",
+                            Modifier.clickable { onOpenKanji(original, null) },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                 }
-            }
-            val stats = listOfNotNull(
-                state.strokeCount?.let { if (it == 1) "1 stroke" else "$it strokes" },
-                // A variant's borrowed data lends meanings and readings, not its levels.
-                state.info?.takeIf { state.variantOf == null }?.jlpt?.let { "N$it" },
-                state.info?.takeIf { state.variantOf == null }?.grade?.let(::gradeLabel),
-            )
-            if (stats.isNotEmpty()) Text(stats.joinToString(" · "), style = MaterialTheme.typography.bodyMedium, color = muted)
-            state.variantOf?.let { original ->
-                Text(
-                    "Variant of $original",
-                    Modifier.clickable { onOpenKanji(original, null) },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
             }
             state.strokes?.takeIf { !state.collapsed }?.let { strokes ->
                 FilledTonalButton(onClick = { state.practiceOpen = !state.practiceOpen }) {
@@ -276,7 +283,8 @@ private fun ComponentNode(node: KanjiNode, depth: Int, infos: Map<String, KanjiI
             Column {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (info != null && info.meanings.isNotEmpty()) {
-                        Text(info.meanings.take(3).joinToString(", "), style = MaterialTheme.typography.bodyLarge)
+                        // Weighted, so a long meaning wraps instead of squeezing the phonetic tag.
+                        Text(info.meanings.take(3).joinToString(", "), Modifier.weight(1f, fill = false), style = MaterialTheme.typography.bodyLarge)
                     }
                     if (node.phon) {
                         Text(

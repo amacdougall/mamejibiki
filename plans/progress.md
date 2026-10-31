@@ -162,3 +162,8 @@ One entry per work session, newest last.
 - Added a signed release build (`./gradlew assembleRelease`): own signing key outside the repo, not debuggable, R8 code and resource shrinking. 51 MB against the debug build's 138 MB. Dev environment doc §5 has the details.
 - Turned off the AnkiDroid library's `DirectSystemCurrentTimeMillisUsage` lint rule, which release builds otherwise fail on.
 - On the device (debug build uninstalled, release installed): search, the entry page's Word, Kanji and Forms tabs, granting the AnkiDroid permission from Settings (deck list, 9,115-note index) and the long-press menu's Exists in AnkiDroid all work. A Play Protect scan on the phone doesn't flag the release build.
+
+### 2026-10-31, session 16: phonetic tag fix, practice hides header details
+- Fixed: a component with a long meaning (寅 in 演) squeezed its "phonetic" tag to one letter per line. The meaning now wraps in the space beside the tag. Checked on the device on 予行演習's Kanji tab.
+- Opening Practice now hides the header's readings, meanings and stats line with a short shrink-and-fade, so the tiles stay on screen above the canvas (UI spec §5). Closing it brings them back; collapsing the block shows them too. Checked on the device with 予.
+- Released 0.2 (versionCode 2): debug build uninstalled, release APK installed on the phone, search and practice checked.
