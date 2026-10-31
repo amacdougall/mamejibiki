@@ -16,8 +16,36 @@ android {
         versionName = "0.1"
     }
 
+    // The release key and its passwords live outside the repo, in ~/.gradle/gradle.properties.
+    // Without them, assembleRelease still builds, but the APK is unsigned.
+    val storeFilePath = providers.gradleProperty("mamejibikiStoreFile").orNull
+    signingConfigs {
+        if (storeFilePath != null) {
+            create("release") {
+                storeFile = file(storeFilePath)
+                storePassword = providers.gradleProperty("mamejibikiStorePassword").get()
+                keyAlias = providers.gradleProperty("mamejibikiKeyAlias").get()
+                keyPassword = providers.gradleProperty("mamejibikiKeyPassword").get()
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.findByName("release")
+        }
+    }
+
     buildFeatures {
         compose = true
+    }
+
+    lint {
+        // The AnkiDroid library ships lint rules meant for AnkiDroid's own codebase.
+        disable += "DirectSystemCurrentTimeMillisUsage"
     }
 }
 

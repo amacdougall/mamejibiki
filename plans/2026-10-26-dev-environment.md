@@ -79,7 +79,19 @@ Before sending `adb shell input`, check that the app is in the foreground (`adb 
 - **Hangs:** `debuggerd` stack dumps need root, which the phone doesn't have. Diagnose hangs with `Log.i` lines instead.
 - **Keyboard:** Gboard is usually in its 12-key kana layout. `input text` bypasses it.
 
-Screenshots are the main way to check UI work, because the user doesn't read the code. Debug builds use the auto-generated debug signing key. There's no Play Store distribution and no release signing.
+Screenshots are the main way to check UI work, because the user doesn't read the code.
+
+**Release builds.** Friends install the app by sideloading a release APK; there's no Play Store distribution.
+
+```sh
+./gradlew assembleRelease     # → app/build/outputs/apk/release/app-release.apk
+```
+
+- **Signing:** debug builds use the auto-generated debug key. Release builds are signed with the app's own key in `~/.android/mamejibiki-release.jks` (alias `mamejibiki`, certificate SHA-256 `71:9F:0D:37:…:7E:FE:4A:08`). Its path and passwords are the `mamejibiki*` entries in `~/.gradle/gradle.properties`, outside the repo. Without those entries `assembleRelease` produces an unsigned APK.
+- **The key is permanent:** every update must be signed with the same key, or Android refuses to install it over the existing app. The user keeps a backup of the keystore file and the `gradle.properties` entries.
+- **Shrinking:** release builds run R8 (`isMinifyEnabled`, `isShrinkResources`) with `app/proguard-rules.pro`. R8 can strip code reached only by reflection, so check a release build on the phone after adding libraries.
+- **Debug and release don't mix on one phone:** they have the same application ID but different signatures. Switching between them means uninstalling first, which deletes the app's local data.
+- **Version:** bump `versionCode` and `versionName` in `app/build.gradle.kts` for each APK handed out, so it installs as an update.
 
 ## 6. Tests
 
